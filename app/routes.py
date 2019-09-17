@@ -13,7 +13,7 @@ def index():
     form = IndexForm()
 
     if form.login.is_submitted() and form.login.submit.data:
-        user = query_db('SELECT * FROM Users WHERE username="{}";'.format(form.login.username.data), one=True)
+        user = query_db('SELECT * FROM Users WHERE username=?;',parameters=[form.login.username.data], one=True)
         if user == None:
             flash('Sorry, this user does not exist!')
         elif user['password'] == form.login.password.data:
@@ -22,7 +22,7 @@ def index():
             flash('Sorry, wrong password!')
 
     elif form.register.is_submitted() and form.register.submit.data:
-        query_db('INSERT INTO Users (username, first_name, last_name, password) VALUES("{}", "{}", "{}", "{}");'.format(form.register.username.data, form.register.first_name.data,
+        query_db('INSERT INTO Users (username, first_name, last_name, password) VALUES(?, ?, ?, ?);', parameters=(form.register.username.data, form.register.first_name.data,
          form.register.last_name.data, form.register.password.data))
         return redirect(url_for('index'))
     return render_template('index.html', title='Welcome', form=form)
@@ -39,7 +39,7 @@ def stream(username):
             form.image.data.save(path)
 
 
-        query_db('INSERT INTO Posts (u_id, content, image, creation_time) VALUES({}, "{}", "{}", \'{}\');'.format(user['id'], form.content.data, form.image.data.filename, datetime.now()))
+        query_db('INSERT INTO Posts (u_id, content, image, creation_time) VALUES(?, ?, ?, ?);', parameters=(user['id'], form.content.data, form.image.data.filename, datetime.now()))
         return redirect(url_for('stream', username=username))
 
     posts = query_db('SELECT p.*, u.*, (SELECT COUNT(*) FROM Comments WHERE p_id=p.id) AS cc FROM Posts AS p JOIN Users AS u ON u.id=p.u_id WHERE p.u_id IN (SELECT u_id FROM Friends WHERE f_id={0}) OR p.u_id IN (SELECT f_id FROM Friends WHERE u_id={0}) OR p.u_id={0} ORDER BY p.creation_time DESC;'.format(user['id']))
