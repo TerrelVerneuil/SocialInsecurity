@@ -1,5 +1,6 @@
 from flask import render_template, flash, redirect, url_for, request
-from app import app, query_db
+from app import app
+from app.classes.db import query_db
 from app.forms import IndexForm, PostForm, FriendsForm, ProfileForm, CommentsForm
 from datetime import datetime
 import os
