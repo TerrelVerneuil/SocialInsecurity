@@ -4,11 +4,21 @@ from flask_bootstrap import Bootstrap
 #from flask_login import LoginManager
 import sqlite3
 import os
+from datetime import timedelta
 
 # create and configure app
 app = Flask(__name__)
 Bootstrap(app)
 app.config.from_object(Config)
+
+# added
+# app.config['SECRET_KEY'] = 'thisIsASecret!'
+app.config['RECAPTCHA_PUBLIC_KEY'] = '6LeHK7sUAAAAAG4UIPltjL4QTebgDbo1tX0fToe7'
+app.config['RECAPTCHA_PRIVATE_KEY'] = '6LeHK7sUAAAAAJ3MkJHmHq-R_eAjqWqw15ExhAw0'
+# app.config['TESTING'] = True
+app.config['REMEMBER_COOKIE_DURATION'] = timedelta(20) # 20seconds
+app.secret_key = 'thisIsASecretYouWillNeverGuess!'
+
 
 # TODO: Handle login management better, maybe with flask_login?
 #login = LoginManager(app)
