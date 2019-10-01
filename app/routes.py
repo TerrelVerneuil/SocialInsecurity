@@ -1,23 +1,37 @@
 from flask import render_template, flash, redirect, url_for, request
-from app import app
-from app.classes.db import query_db
+from flask_login import login_user, logout_user, login_required, current_user
+from app import app, login_manager
+from app.db import query_db
+from app.auth import User
 from app.forms import IndexForm, PostForm, FriendsForm, ProfileForm, CommentsForm
 from datetime import datetime
 import os
 
 # this file contains all the different routes, and the logic for communicating with the database
 
+@login_manager.user_loader
+def load_user(user_id):
+    return User.get(user_id)
+
+
+# @app.before_request
+# @login_required
+# def before_request_func():
+#     print("before_request is running!")
+
 # home page/login/registration
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/index', methods=['GET', 'POST'])
 def index():
     form = IndexForm()
-
     if form.login.is_submitted() and form.login.submit.data:
         user = query_db('SELECT * FROM Users WHERE username=?;',parameters=[form.login.username.data], one=True)
         if user == None:
             flash('Sorry, this user does not exist!')
         elif user['password'] == form.login.password.data:
+            logout_user()
+            login_user(User(user['id']))
+            print(User(user['id']))
             return redirect(url_for('stream', username=form.login.username.data))
         else:
             flash('Sorry, wrong password!')
@@ -31,9 +45,10 @@ def index():
 
 # content stream page
 @app.route('/stream/<username>', methods=['GET', 'POST'])
+@login_required
 def stream(username):
     form = PostForm()
-    user = query_db('SELECT * FROM Users WHERE username="{}";'.format(username), one=True)
+    user = query_db('SELECT * FROM Users WHERE username=?;', parameters=(username,), one=True)
     if form.is_submitted():
         if form.image.data:
             path = os.path.join(app.config['UPLOAD_PATH'], form.image.data.filename)
@@ -48,40 +63,43 @@ def stream(username):
 
 # comment page for a given post and user.
 @app.route('/comments/<username>/<int:p_id>', methods=['GET', 'POST'])
+@login_required
 def comments(username, p_id):
     form = CommentsForm()
     if form.is_submitted():
-        user = query_db('SELECT * FROM Users WHERE username="{}";'.format(username), one=True)
-        query_db('INSERT INTO Comments (p_id, u_id, comment, creation_time) VALUES({}, {}, "{}", \'{}\');'.format(p_id, user['id'], form.comment.data, datetime.now()))
+        user = query_db('SELECT * FROM Users WHERE username=?;', parameters=(username,), one=True)
+        query_db('INSERT INTO Comments (p_id, u_id, comment, creation_time) VALUES(?, ?, ?, ?);', parameters=(p_id, user['id'], form.comment.data, datetime.now()))
 
-    post = query_db('SELECT * FROM Posts WHERE id={};'.format(p_id), one=True)
+    post = query_db('SELECT * FROM Posts WHERE id=?;', parameters=(p_id), one=True)
     all_comments = query_db('SELECT DISTINCT * FROM Comments AS c JOIN Users AS u ON c.u_id=u.id WHERE c.p_id={} ORDER BY c.creation_time DESC;'.format(p_id))
     return render_template('comments.html', title='Comments', username=username, form=form, post=post, comments=all_comments)
 
 # page for seeing and adding friends
 @app.route('/friends/<username>', methods=['GET', 'POST'])
+@login_required
 def friends(username):
     form = FriendsForm()
-    user = query_db('SELECT * FROM Users WHERE username="{}";'.format(username), one=True)
+    user = query_db('SELECT * FROM Users WHERE username=?;', parameters=(username,), one=True)
     if form.is_submitted():
-        friend = query_db('SELECT * FROM Users WHERE username="{}";'.format(form.username.data), one=True)
+        friend = query_db('SELECT * FROM Users WHERE username=?;', parameters=(form.username.data,), one=True)
         if friend is None:
             flash('User does not exist')
         else:
-            query_db('INSERT INTO Friends (u_id, f_id) VALUES({}, {});'.format(user['id'], friend['id']))
+            query_db('INSERT INTO Friends (u_id, f_id) VALUES(?, ?);', parameters=(user['id'], friend['id']))
     
-    all_friends = query_db('SELECT * FROM Friends AS f JOIN Users as u ON f.f_id=u.id WHERE f.u_id={} AND f.f_id!={} ;'.format(user['id'], user['id']))
+    all_friends = query_db('SELECT * FROM Friends AS f JOIN Users as u ON f.f_id=u.id WHERE f.u_id=? AND f.f_id!=? ;', parameters=(user['id'], user['id']))
     return render_template('friends.html', title='Friends', username=username, friends=all_friends, form=form)
 
 # see and edit detailed profile information of a user
 @app.route('/profile/<username>', methods=['GET', 'POST'])
+@login_required
 def profile(username):
     form = ProfileForm()
     if form.is_submitted():
-        query_db('UPDATE Users SET education="{}", employment="{}", music="{}", movie="{}", nationality="{}", birthday=\'{}\' WHERE username="{}" ;'.format(
+        query_db('UPDATE Users SET education=?, employment=?, music=?, movie=?, nationality=?, birthday=? WHERE username=? ;', parameters=(
             form.education.data, form.employment.data, form.music.data, form.movie.data, form.nationality.data, form.birthday.data, username
         ))
         return redirect(url_for('profile', username=username))
     
-    user = query_db('SELECT * FROM Users WHERE username="{}";'.format(username), one=True)
+    user = query_db('SELECT * FROM Users WHERE username=?;', parameters=(username,), one=True)
     return render_template('profile.html', title='profile', username=username, user=user, form=form)

@@ -1,15 +1,20 @@
 from flask import Flask, g
 from config import Config
 from flask_bootstrap import Bootstrap
-#from flask_login import LoginManager
+from flask_login import LoginManager
 
 # create and configure app
 app = Flask(__name__)
 Bootstrap(app)
 app.config.from_object(Config)
 
+# init login manager
+login_manager = LoginManager()
+login_manager.login_view = "index"
+login_manager.init_app(app)
+
 # setup database to close connection on teardown
-from app.classes import db
+from app import db
 db.init_app(app)
 
 # TODO: Handle login management better, maybe with flask_login?
