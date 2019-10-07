@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
-{% block content %}    
+{% block content %}
 <div class="jumbotron jumbotron-fluid">
     <div class="container">
         <h1 class="display-4">Social Insecurity</h1>
@@ -16,9 +16,22 @@
                 </div>
                 <div class="card-body">
                     <h5 class="card-title">Access an existing profile</h5>
-                    <form action="" method="POST">
-                        {{ wtf.form_field(form.login.username) }}
-                        {{ wtf.form_field(form.login.password) }}
+                    <form action="" method="POST", novalidate>
+                        {{ form.login.csrf_token }}
+                        <p>
+                            {{ form.login.username.label }}<br>
+                            {{ form.login.username(size=120) }}<br>
+                            {% for error in form.login.username.errors %}
+                            <span style="color: red;">{{ error }} </span>
+                            {% endfor %}<br>
+                        </p>
+                        <p>
+                            {{ form.login.password.label }}<br>
+                            {{ form.login.password(size=120) }}<br>
+                            {% for error in form.login.password.errors %}
+                            <span style="color: red;">{{ error }} </span>
+                            {% endfor %}<br>
+                        </p>
                         {{ wtf.form_field(form.login.remember_me) }}
                         {{ wtf.form_field(form.login.submit, class="btn btn-primary") }}
                     </form>
@@ -31,49 +44,62 @@
                     Register
                 </div>
                 <div class="card-body">
-                
+
                     <h5 class="card-title">Create a new profile</h5>
-                    <form action="", method="POST">
-                        {{ form.hidden_tag() }}
+                    <form action="" , method="POST", novalidate>
+                        {{ form.register.csrf_token }}
                         <p>
-                        {{ form.csrf_token }}
-                        {{ form.register.first_name.label }}<br>
-                        {{ form.register.first_name(size=120) }}<br>
-                        {% for error in form.register.first_name.errors %}
-                        <span style="color: red;">{{ error }} </span>
-                        {% endfor %}<br>
+                            {{ form.register.first_name.label }}<br>
+                            {{ form.register.first_name(size=120) }}<br>
+                            {% for error in form.register.first_name.errors %}
+                            <span style="color: red;">{{ error }} </span>
+                            {% endfor %}<br>
                         </p>
                         <p>
-                        {{ form.register.last_name.label }}<br>
-                        {{ form.register.last_name(size=120) }}<br>
-                        {% for error in form.register.last_name.errors %}
-                        <span style="color: red;">{{ error }} </span>
-                        {% endfor %}<br>
+                            {{ form.register.last_name.label }}<br>
+                            {{ form.register.last_name(size=120) }}<br>
+                            {% for error in form.register.last_name.errors %}
+                            <span style="color: red;">{{ error }} </span>
+                            {% endfor %}<br>
                         </p>
                         <p>
-                        {{ form.register.username.label }}<br>
-                        {{ form.register.username(size=120) }}<br>
-                        {% for error in form.register.username.errors %}
-                        <span style="color: red;">{{ error }} </span>
-                        {% endfor %}<br>
+                            {{ form.register.username.label }}<br>
+                            {{ form.register.username(size=120) }}<br>
+                            {% for error in form.register.username.errors %}
+                            <span style="color: red;">{{ error }} </span>
+                            {% endfor %}<br>
                         </p>
                         <p>
-                        {{ form.register.password.label }}<br>
-                        {{ form.register.password(size=120) }}<br>
-                        {% for error in form.register.password.errors %}
-                        <span style="color: red;">{{ error }} </span>
-                        {% endfor %}<br>
+                            {{ form.register.password.label }}<br>
+                            {{ form.register.password(size=120) }}<br>
+                            {% for error in form.register.password.errors %}
+                            <span style="color: red;">{{ error }} </span>
+                            {% endfor %}<br>
                         </p>
                         <p>
-                        {{ form.register.confirm_password.label }}<br>
-                        {{ form.register.confirm_password(size=120) }}<br>
-                        {% for error in form.register.confirm_password.errors %}
-                        <span style="color: red;">{{ error }} </span>
-                        {% endfor %}<br>
+                            {{ form.register.confirm_password.label }}<br>
+                            {{ form.register.confirm_password(size=120) }}<br>
+                            {% for error in form.register.confirm_password.errors %}
+                            <span style="color: red;">{{ error }} </span>
+                            {% endfor %}<br>
                         </p>
+                        {{ form.register.recaptcha }}
+                        <style>
+                            .text-xs-center {
+                                text-align: center;
+                            }
+
+                            .g-recaptcha {
+                                display: inline-block;
+                            }
+                        </style>
+                        <div class="text-xs-center">
+                            <div class="g-recaptcha" data-sitekey=""></div>
+                        </div>
                         <p>
-                        {{ wtf.form_field(form.register.submit, class="btn btn-primary") }}
+                            {{ wtf.form_field(form.register.submit, class="btn btn-primary") }}
                         </p>
+
                     </form>
                 </div>
             </div>

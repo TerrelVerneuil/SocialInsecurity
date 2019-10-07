@@ -1,6 +1,6 @@
 from flask import render_template, flash, redirect, url_for, request, session
 from app import app, query_db
-from app.forms import IndexForm, PostForm, FriendsForm, ProfileForm, CommentsForm
+from app.forms import IndexForm, PostForm, FriendsForm, ProfileForm, CommentsForm, ValidationError
 from datetime import datetime
 import os
 
@@ -10,47 +10,29 @@ import os
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/index', methods=['GET', 'POST'])
 def index():
-    form = IndexForm(request.form)
+    form = IndexForm()
     
-    print(form.register.errors)
-    if form.login.is_submitted() and form.login.submit.data: 
-        user = query_db('SELECT * FROM Users WHERE username="{}";'.format(form.login.username.data), one=True)
+    #print(form.errors)
+    #if form.login.is_submitted() and form.login.submit.data: 
+    if form.login.validate_on_submit(): # changed
+        user = query_db('SELECT * FROM Users WHERE username="{}";'.format(form.login.username.data), one=True,)
         
         if user == None: # if user does not exist
-            flash('Invalid username or password!') # changed "Sorry, this user does not exist!"
+            flash('Invalid username or password!') # changed
 
-        elif user['password'] == form.login.password.data: # if password is correct
-            flash('successfully Logged in as {}'.format(form.login.username.data)) # Added, "success login"
-            return redirect(url_for('stream', username=form.login.username.data)) # Go to profile stream
+        elif user['password'] == form.login.password.data:
+            flash('successfully Logged in as {}'.format(form.login.username.data)) # Added
+            return redirect(url_for('stream', username=form.login.username.data))
 
         else:
             flash('Invalid username or password!') # changed
 
-    elif form.register.is_submitted() and form.register.submit.data and form.register.validate_on_submit():
-         #elif form.register.validate_on_submit(): # if validated, continue
-
-         #if (form.register.validate_on_submit() == False):
-        query_db('INSERT INTO [Users] (username, first_name, last_name, password) VALUES("{}", "{}", "{}", "{}");'.format(form.register.username.data, form.register.first_name.data,
-        form.register.last_name.data, form.register.password.data)) # insert values of new profile into database
-
-        flash('successfully created {} as username'.format(form.register.username.data)) # Added, "success, create user"
+    if form.register.validate_on_submit(): # changed
+        query_db('INSERT INTO [Users] (username, first_name, last_name, password) VALUES("{}", "{}", "{}", "{}");'.format(form.register.username.data, form.register.first_name.data, form.register.last_name.data, form.register.password.data)) # insert values of new profile into database
+        flash('successfully created {} as username'.format(form.register.username.data)) # Added
         return redirect(url_for('index'))
-
-    else:
-        flash('Cannot create {} as username'.format(form.register.username.data)) # Added, "Fail, create user"
-
+    
     return render_template('index.html', title='Welcome', form=form)
-
-
-
-# @app.route('/form', methods=['GET','POST'])
-# def form():
-#      form = LoginForm()
-#      if form.validate_on_submit():
-#         return '<h1> the username is {}. the password is {}.' .format(form.register.username.data, form.register.password.data)
-#      return render_template('index.html', form=form)
-
-
 
 # content stream page
 @app.route('/stream/<username>', methods=['GET', 'POST'])
