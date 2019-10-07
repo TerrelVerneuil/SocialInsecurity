@@ -8,29 +8,25 @@ def hash_password(password):
     return ph.hash(password)
 
 
-# def check_password(password, email):
-#     with ConnectionInstance() as queries:
-#         try:
-#             return ph.verify(queries.get_pass_hash(email), password)
-#         except exceptions.VerifyMismatchError:
-#             return False
-
-
-
-# def get_user_id(email):
-#     with ConnectionInstance as queries:
-#         return queries.getUserId(email)
+def check_password(db_pass, password):
+    try:
+        ph.verify(db_pass, password)
+        return True
+    except:
+        pass
+    return False
+    
 
 
 # user class, needed for flask-login to work
 class User(UserMixin):
-    def __init__(self, id):
-        self.id = id
-        self.username = 'test'
+    def __init__(self, user):
+        self.id = user['id']
+        self.username = user['username']
 
     @staticmethod
     def get(id):
         user = query_db('SELECT * FROM Users WHERE id=?;',parameters=(id,), one=True)
         if user == None:
             return AnonymousUserMixin()
-        return User(id)
+        return User(user)
