@@ -4,7 +4,8 @@ from wtforms import StringField, PasswordField, BooleanField, SubmitField, FormF
 from wtforms.fields.html5 import DateField
 
 from wtforms.validators import InputRequired, DataRequired, ValidationError, Regexp, NoneOf, length, EqualTo
-from app import app, query_db
+from app import app
+from app.db import get_user
 # from somemodule import SomeCSRF
 
 # defines all forms in the application, these will be instantiated by the template,
@@ -32,41 +33,47 @@ class LoginForm(FlaskForm):
     submit = SubmitField('Sign In')
 
 class RegisterForm(FlaskForm):
-    first_name = StringField('First Name',validators=[DataRequired('Enter first name'),
-     length(min=3, max=20, message='Must be between 3-20 characters' ),
-     Regexp('^[A-Za-z][A-Za-z]*$', 0,'only letters allowed')], 
-     render_kw={'placeholder': 'First Name'})# changed #1.1
-    last_name = StringField('Last Name',validators=[DataRequired(message='Enter last name'), 
-    length(min=3, max=20, message='Must be between 3-20 characters' ), 
-    Regexp('^[A-Za-z][A-Za-z]*$', 0,'only letters allowed')], 
-    render_kw={'placeholder': 'Last Name'})# changed #1.1
-    username = StringField('Username', validators=[DataRequired(message='A username is required!'), 
-    length(min=8, max=30, message='Must be between 8-30 characters' ), 
-    Regexp('^[A-Za-z][A-Za-z0-9_.]*$', 0,'Usernames must have only letters,numbers, dots or underscores')], 
-    render_kw={'placeholder': 'username'}) # changed #1.1
-    def validate_username(self,field):
+    first_name = StringField('First Name',
+        validators=[DataRequired('Enter first name'),
+            length(min=3, max=20, message='Must be between 3-20 characters' ),
+            Regexp('^[A-Za-z][A-Za-z]*$', 0,'only letters allowed')], 
+        render_kw={'placeholder': 'First Name'})# changed #1.1
 
-        user = query_db('SELECT * FROM Users WHERE username="{}";'.format(self.username.data), one=True)
-        if user:
-            flash('Username {} is already taken.'.format(self.username.data))
-            raise ValidationError('Username {} already taken.'.format(self.username.data))
+    last_name = StringField('Last Name',
+        validators=[DataRequired(message='Enter last name'), 
+            length(min=3, max=20, message='Must be between 3-20 characters' ), 
+            Regexp('^[A-Za-z][A-Za-z]*$', 0,'only letters allowed')], 
+        render_kw={'placeholder': 'Last Name'})# changed #1.1
+    
+    username = StringField('Username', 
+        validators=[DataRequired(message='A username is required!'), 
+            length(min=8, max=30, message='Must be between 8-30 characters' ), 
+            Regexp('^[A-Za-z][A-Za-z0-9_.]*$', 0,'Usernames must have only letters,numbers, dots or underscores')], 
+        render_kw={'placeholder': 'username'}) # changed #1.1
    
-    password = PasswordField('Password', validators=[DataRequired('Password is required!'), 
-    length(min=10, max=30, message='Must be between 10-30 characters' ), 
-    Regexp('^[A-Za-z][A-Za-z0-9_.]*$', 0,'Password must have only letters,numbers, dots or underscores')], 
-    render_kw={'placeholder': 'password'}) # changed #1.1
-    def validate_password(self,field):
-
-        if (field.data == self.username.data):
-            flash('password cannot be same as username', field.data)
-            raise ValidationError('password cannot be same as username')
+    password = PasswordField('Password', 
+        validators=[DataRequired('Password is required!'), 
+            length(min=10, max=30, message='Must be between 10-30 characters' ), 
+            Regexp('^[A-Za-z][A-Za-z0-9_.]*$', 0,'Password must have only letters,numbers, dots or underscores')], 
+        render_kw={'placeholder': 'password'}) # changed #1.1
 
     confirm_password = PasswordField('Confirm Password', 
-    validators=[EqualTo ('password', message='confirm password must match')], 
-    render_kw={'placeholder': 'Confirm password'}) # changed#1.1
+        validators=[EqualTo ('password', message='confirm password must match')], 
+        render_kw={'placeholder': 'Confirm password'}) # changed#1.1
+    
     recaptcha = RecaptchaField() # added
     submit = SubmitField('Sign Up')
 
+    def check_username(self, field):
+        user = get_user(self.username.data)
+        if user:
+            flash('Username {} is already taken.'.format(self.username.data))
+            raise ValidationError('Username {} already taken.'.format(self.username.data))
+
+    def validate_password(self, field):
+        if (field.data == self.username.data):
+            flash('password cannot be same as username', field.data)
+            raise ValidationError('password cannot be same as username')
 
 class IndexForm(FlaskForm):
     login = FormField(LoginForm)

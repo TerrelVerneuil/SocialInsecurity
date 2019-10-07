@@ -3,7 +3,7 @@ from flask_login import login_user, logout_user, login_required, current_user
 from app import app, login_manager
 import app.db as db
 from app.auth import User, hash_password, check_password
-from app.forms import IndexForm, PostForm, FriendsForm, ProfileForm, CommentsForm, ValidationError
+from app.forms import IndexForm, PostForm, FriendsForm, ProfileForm, CommentsForm
 from datetime import datetime
 import os
 
@@ -45,7 +45,6 @@ def index():
     return render_template('index.html', title='Welcome', form=form)
 
 # content stream page
-# users home page!
 @app.route('/stream/<username>', methods=['GET', 'POST'])
 @login_required
 def stream(username):
@@ -84,8 +83,8 @@ def comments(username, p_id):
 
     form = CommentsForm()
     if form.is_submitted():
-        user = query_db('SELECT * FROM Users WHERE username=?;', parameters=(username,), one=True)
-        query_db('INSERT INTO Comments (p_id, u_id, comment, creation_time) VALUES(?, ?, ?, ?);', parameters=(p_id, user['id'], form.comment.data, datetime.now()))
+        user = db.query_db('SELECT * FROM Users WHERE username=?;', parameters=(username,), one=True)
+        db.query_db('INSERT INTO Comments (p_id, u_id, comment, creation_time) VALUES(?, ?, ?, ?);', parameters=(p_id, user['id'], form.comment.data, datetime.now()))
 
 
     post = db.get_post(p_id)
@@ -97,15 +96,15 @@ def comments(username, p_id):
 @login_required
 def friends(username):
     form = FriendsForm()
-    user = query_db('SELECT * FROM Users WHERE username=?;', parameters=(username,), one=True)
+    user = db.query_db('SELECT * FROM Users WHERE username=?;', parameters=(username,), one=True)
     if form.is_submitted():
-        friend = query_db('SELECT * FROM Users WHERE username=?;', parameters=(form.username.data,), one=True)
+        friend = db.query_db('SELECT * FROM Users WHERE username=?;', parameters=(form.username.data,), one=True)
         if friend is None:
             flash('User does not exist')
         else:
-            query_db('INSERT INTO Friends (u_id, f_id) VALUES(?, ?);', parameters=(user['id'], friend['id']))
+            db.query_db('INSERT INTO Friends (u_id, f_id) VALUES(?, ?);', parameters=(user['id'], friend['id']))
     
-    all_friends = query_db('SELECT * FROM Friends AS f JOIN Users as u ON f.f_id=u.id WHERE f.u_id=? AND f.f_id!=? ;', parameters=(user['id'], user['id']))
+    all_friends = db.query_db('SELECT * FROM Friends AS f JOIN Users as u ON f.f_id=u.id WHERE f.u_id=? AND f.f_id!=? ;', parameters=(user['id'], user['id']))
     return render_template('friends.html', title='Friends', username=username, friends=all_friends, form=form)
 
 # see and edit detailed profile information of a user
@@ -114,10 +113,10 @@ def friends(username):
 def profile(username):
     form = ProfileForm()
     if form.is_submitted():
-        query_db('UPDATE Users SET education=?, employment=?, music=?, movie=?, nationality=?, birthday=? WHERE username=? ;', parameters=(
+        db.query_db('UPDATE Users SET education=?, employment=?, music=?, movie=?, nationality=?, birthday=? WHERE username=? ;', parameters=(
             form.education.data, form.employment.data, form.music.data, form.movie.data, form.nationality.data, form.birthday.data, username
         ))
         return redirect(url_for('profile', username=username))
     
-    user = query_db('SELECT * FROM Users WHERE username=?;', parameters=(username,), one=True)
+    user = db.query_db('SELECT * FROM Users WHERE username=?;', parameters=(username,), one=True)
     return render_template('profile.html', title='profile', username=username, user=user, form=form)
