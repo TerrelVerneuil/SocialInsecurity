@@ -120,6 +120,7 @@ def friends(username):
 @login_required
 def profile(username):
     form = ProfileForm()
+    user = db.get_user(username)
     if current_user.username == username:
         if form.is_submitted():
             db.update_profile(current_user.id, 
@@ -130,13 +131,12 @@ def profile(username):
                 form.nationality.data, 
                 form.birthday.data)
             return redirect(url_for('profile', username=username))
-
-    # elif is_user_friend(username, current_user.id):
-    #     for field in form:
-    #         field.render_kw = {'disabled': 'disabled'}
+    
+    elif db.is_user_friend(current_user.id, user['id']):
+        for field in form:
+            field.render_kw = {'disabled': 'disabled'}
     else:
         return abort(404)
     
-    user = db.get_user(username)
     return render_template('profile.html', title='profile', username=username, user=user, form=form)
     
