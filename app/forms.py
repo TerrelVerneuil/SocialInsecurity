@@ -10,11 +10,16 @@ from config import Config
 
 class LoginForm(FlaskForm):
 
-    username = StringField('Username',validators=[DataRequired(''),Regexp('^[A-Za-z][A-Za-z0-9_.]*$', 0,'ERROR'), 
-    ])
-    password = PasswordField('Password',validators=[DataRequired(''),Regexp('^[A-Za-z][A-Za-z0-9_.]*$', 0,'ERROR') 
-    ])
+    username = StringField('Username',
+        validators=[DataRequired(''),
+            Regexp('^[A-Za-z][A-Za-z0-9_.]*$', 0,'ERROR')])
+
+    password = PasswordField('Password',
+        validators=[DataRequired(''),
+            Regexp('^[A-Za-z][A-Za-z0-9_.]*$', 0,'ERROR')])
+
     remember_me = BooleanField('Remember me?')
+    recaptcha = RecaptchaField() # added
     submit = SubmitField('Sign In')
 
 class RegisterForm(FlaskForm):
@@ -49,7 +54,7 @@ class RegisterForm(FlaskForm):
     recaptcha = RecaptchaField() # added
     submit = SubmitField('Sign Up')
 
-    def check_username(self, field):
+    def validate_username(self, field):
         user = get_user(self.username.data)
         if user:
             flash('Username {} is already taken.'.format(self.username.data))
