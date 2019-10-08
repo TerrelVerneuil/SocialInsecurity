@@ -1,17 +1,12 @@
 from flask import Flask, render_template,flash # 1.1 
 from flask_wtf import FlaskForm, RecaptchaField
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, FormField, TextAreaField, FileField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, FormField, TextAreaField
+from flask_wtf.file import FileField, FileAllowed
 from wtforms.fields.html5 import DateField
-
 from wtforms.validators import InputRequired, DataRequired, ValidationError, Regexp, NoneOf, length, EqualTo
 from app import app
 from app.db import get_user
-# from somemodule import SomeCSRF
-
-# defines all forms in the application, these will be instantiated by the template,
-# and the routes.py will read the values of the fields
-# TODO: Add validation, maybe use wtforms.validators?? # Done
-# TODO: There was some important security feature that wtforms provides, but I don't remember what; implement it
+from config import Config
 
 class LoginForm(FlaskForm):
 
@@ -29,7 +24,7 @@ class LoginForm(FlaskForm):
     #     if userp != self.password.data:
     #         raise ValidationError('Invalid username or password!')
 
-    remember_me = BooleanField('Remember me?') # TODO: It would be nice to have this feature implemented, probably by using cookies
+    remember_me = BooleanField('Remember me?')
     submit = SubmitField('Sign In')
 
 class RegisterForm(FlaskForm):
@@ -81,7 +76,9 @@ class IndexForm(FlaskForm):
 
 class PostForm(FlaskForm):
     content = TextAreaField('New Post', render_kw={'placeholder': 'What are you thinking about?'})
-    image = FileField('Image')
+    image = FileField('Image', validators=[
+        FileAllowed(Config.ALLOWED_EXTENSIONS, 'Images only!')
+    ])
     submit = SubmitField('Post')
 
 class CommentsForm(FlaskForm):

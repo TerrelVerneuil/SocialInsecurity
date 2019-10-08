@@ -37,12 +37,12 @@ def create_user(username, first_name, last_name, password):
                      VALUES(?, ?, ?, ?);',
                      parameters=(username, first_name, last_name, password))
 
-def add_stream_content(id, content, filename, date):
+def add_stream_content(u_id, content, filename, date):
     query_db('INSERT INTO Posts (u_id, content, image, creation_time) \
               VALUES(?, ?, ?, ?);', 
-              parameters=(id, content, filename, date))
+              parameters=(u_id, content, filename, date))
         
-def get_stream_content(id):
+def get_stream_content(u_id):
     return query_db('SELECT p.*, u.*, \
                         (SELECT COUNT(*) \
                         FROM Comments \
@@ -58,7 +58,7 @@ def get_stream_content(id):
                                     WHERE u_id=?) \
                     OR p.u_id=? \
                     ORDER BY p.creation_time \
-                    DESC;', parameters=[id])
+                    DESC;', parameters=[u_id, u_id, u_id])
 
 def get_post(p_id):
     return query_db('SELECT * \
@@ -75,6 +75,39 @@ def get_comments(p_id):
                      ORDER BY c.creation_time DESC;', 
                      parameters = [p_id])
    
+def get_all_friends(u_id):
+    return query_db('SELECT * \
+                     FROM Friends AS f \
+                     JOIN Users as u \
+                     ON f.f_id=u.id \
+                     WHERE f.u_id = ? \
+                     AND f.f_id != ? ;', 
+                     parameters=[u_id, u_id])
+
+def get_friend(username, u_id):
+    return query_db('SELECT * \
+                     FROM Friends AS f \
+                     JOIN Users as u \
+                     ON f.f_id=u.id \
+                     WHERE f.u_id = ? \
+                     AND f.f_id != ? ;', 
+                     parameters=[u_id, u_id])
+
+def add_friend(u_id, f_id):
+    query_db('INSERT INTO Friends (u_id, f_id) \
+              VALUES(?, ?);', 
+              parameters=(u_id, f_id))
+
+def update_profile(u_id, education, employment, music, movie, nationality, birthday):
+    query_db('UPDATE Users \
+              SET education=?, \
+                employment=?, \
+                music=?, \
+                movie=?, \
+                nationality=?, \
+                birthday=? \
+              WHERE username=? ;', 
+              parameters=(education, employment, music, movie, nationality, birthday, u_id))
 
 # automatically called when application is closed, and closes db connection
 def init_app(app):

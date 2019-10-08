@@ -1,10 +1,11 @@
-from flask import render_template, flash, redirect, url_for, request
+from flask import render_template, flash, redirect, url_for, request, abort
 from flask_login import login_user, logout_user, login_required, current_user
 from app import app, login_manager
 import app.db as db
 from app.auth import User, hash_password, check_password
 from app.forms import IndexForm, PostForm, FriendsForm, ProfileForm, CommentsForm
 from datetime import datetime
+from werkzeug.utils import secure_filename
 import os
 
 # this file contains all the different routes, and the logic for communicating with the database
@@ -27,7 +28,7 @@ def index():
     if form.login.validate_on_submit():
         user = db.get_user(form.login.username.data)
         if check_password(user['password'], form.login.password.data):
-            login_user(User(user))
+            login_user(User(user), remember=form.login.remember_me)
             return redirect(url_for('stream', username=form.login.username.data))
         else:
             flash('Invalid username or password!')
@@ -54,15 +55,18 @@ def stream(username):
     
     # POST: add new stream content
     form = PostForm()
-    if form.is_submitted():
-        if form.image.data:
-            # TODO fix this
-            path = os.path.join(app.config['UPLOAD_PATH'], form.image.data.filename) 
-            form.image.data.save(path)
+    if form.validate_on_submit():
+        f = form.image.data
+        if f:
+            filename = secure_filename(f.filename)
+            path = os.path.join(app.config['UPLOAD_PATH'], filename) 
+            f.save(path)
+        else:
+            filename = None
 
         db.add_stream_content(current_user.id, 
                               form.content.data, 
-                              form.image.data.filename, 
+                              filename, 
                               datetime.now())
 
         # reload stream
@@ -95,28 +99,44 @@ def comments(username, p_id):
 @app.route('/friends/<username>', methods=['GET', 'POST'])
 @login_required
 def friends(username):
+    # redirect if someone tries to access other peoples friends page
+    if not current_user.username == username:
+        return redirect(url_for('friends', username=current_user.username))
+
     form = FriendsForm()
-    user = db.query_db('SELECT * FROM Users WHERE username=?;', parameters=(username,), one=True)
     if form.is_submitted():
-        friend = db.query_db('SELECT * FROM Users WHERE username=?;', parameters=(form.username.data,), one=True)
+        friend = db.get_user(form.username.data)
         if friend is None:
             flash('User does not exist')
         else:
-            db.query_db('INSERT INTO Friends (u_id, f_id) VALUES(?, ?);', parameters=(user['id'], friend['id']))
-    
-    all_friends = db.query_db('SELECT * FROM Friends AS f JOIN Users as u ON f.f_id=u.id WHERE f.u_id=? AND f.f_id!=? ;', parameters=(user['id'], user['id']))
-    return render_template('friends.html', title='Friends', username=username, friends=all_friends, form=form)
+            db.add_friend(current_user.id, friend['id'])
+            flash('Friend request sent') # TODO add friend request?
+              
+    all_friends = db.get_all_friends(current_user.id)
+    return render_template('friends.html', title='Friends', username=current_user.username, friends=all_friends, form=form)
 
 # see and edit detailed profile information of a user
 @app.route('/profile/<username>', methods=['GET', 'POST'])
 @login_required
 def profile(username):
     form = ProfileForm()
-    if form.is_submitted():
-        db.query_db('UPDATE Users SET education=?, employment=?, music=?, movie=?, nationality=?, birthday=? WHERE username=? ;', parameters=(
-            form.education.data, form.employment.data, form.music.data, form.movie.data, form.nationality.data, form.birthday.data, username
-        ))
-        return redirect(url_for('profile', username=username))
+    if current_user.username == username:
+        if form.is_submitted():
+            db.update_profile(current_user.id, 
+                form.education.data, 
+                form.employment.data, 
+                form.music.data, 
+                form.movie.data, 
+                form.nationality.data, 
+                form.birthday.data)
+            return redirect(url_for('profile', username=username))
+
+    # elif is_user_friend(username, current_user.id):
+    #     for field in form:
+    #         field.render_kw = {'disabled': 'disabled'}
+    else:
+        return abort(404)
     
-    user = db.query_db('SELECT * FROM Users WHERE username=?;', parameters=(username,), one=True)
+    user = db.get_user(username)
     return render_template('profile.html', title='profile', username=username, user=user, form=form)
+    

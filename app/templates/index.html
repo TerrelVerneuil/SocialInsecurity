@@ -16,7 +16,7 @@
                 </div>
                 <div class="card-body">
                     <h5 class="card-title">Access an existing profile</h5>
-                    <form action="" method="POST", novalidate>
+                    <form action="" method="POST">
                         {{ form.login.csrf_token }}
                         <p>
                             {{ form.login.username.label }}<br>
@@ -46,7 +46,7 @@
                 <div class="card-body">
 
                     <h5 class="card-title">Create a new profile</h5>
-                    <form action="" , method="POST", novalidate>
+                    <form action="" method="POST">
                         {{ form.register.csrf_token }}
                         <p>
                             {{ form.register.first_name.label }}<br>
