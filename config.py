@@ -7,5 +7,3 @@ class Config(object):
     DATABASE = 'database.db'
     UPLOAD_PATH = 'app/static/uploads'
     ALLOWED_EXTENSIONS = {} # Might use this at some point, probably don't want people to upload any file typef
-    #RECAPTCHA_PUBLIC_KEY = ''
-    #RECAPTCHA_PRIVATE_KEY = ''
