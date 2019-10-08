@@ -12,31 +12,21 @@ class LoginForm(FlaskForm):
 
     username = StringField('Username',validators=[DataRequired(''),Regexp('^[A-Za-z][A-Za-z0-9_.]*$', 0,'ERROR'), 
     ])
-    # def validate_LoginUsername(self,field):
-    #     usern = query_db('SELECT * FROM Users WHERE username="{}";'.format(self.username.data), one=True)
-    #     if usern != self.username.data:
-    #         raise ValidationError('Invalid username or password!')
-
     password = PasswordField('Password',validators=[DataRequired(''),Regexp('^[A-Za-z][A-Za-z0-9_.]*$', 0,'ERROR') 
     ])
-    # def validate_LoginPassword(self,field):
-    #     userp = query_db('SELECT * FROM Users WHERE password="{}";'.format(self.password.data), one=True)
-    #     if userp != self.password.data:
-    #         raise ValidationError('Invalid username or password!')
-
     remember_me = BooleanField('Remember me?')
     submit = SubmitField('Sign In')
 
 class RegisterForm(FlaskForm):
     first_name = StringField('First Name',
         validators=[DataRequired('Enter first name'),
-            length(min=3, max=20, message='Must be between 3-20 characters' ),
+            length(min=2, max=20, message='Must be between 2-20 characters' ),
             Regexp('^[A-Za-z][A-Za-z]*$', 0,'only letters allowed')], 
         render_kw={'placeholder': 'First Name'})# changed #1.1
 
     last_name = StringField('Last Name',
         validators=[DataRequired(message='Enter last name'), 
-            length(min=3, max=20, message='Must be between 3-20 characters' ), 
+            length(min=2, max=20, message='Must be between 2-20 characters' ), 
             Regexp('^[A-Za-z][A-Za-z]*$', 0,'only letters allowed')], 
         render_kw={'placeholder': 'Last Name'})# changed #1.1
     
