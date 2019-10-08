@@ -90,14 +90,11 @@ def get_all_friends(u_id):
                      AND f.f_id != ? ;', 
                      parameters=[u_id, u_id])
 
-def get_friend(username, u_id):
+def is_user_friend(u_id, f_id):
     return query_db('SELECT * \
-                     FROM Friends AS f \
-                     JOIN Users as u \
-                     ON f.f_id=u.id \
-                     WHERE f.u_id = ? \
-                     AND f.f_id != ? ;', 
-                     parameters=[u_id, u_id])
+                     FROM Friends \
+                     WHERE u_id = ? AND f_id = ?',
+                     parameters=[u_id, f_id], one=True)
 
 def add_friend(u_id, f_id):
     query_db('INSERT INTO Friends (u_id, f_id) \
