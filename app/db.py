@@ -32,6 +32,12 @@ def get_user(username):
                      WHERE username = ?;',
         parameters=[username], one=True)
 
+def get_user_id(username):
+    return query_db('SELECT * \
+                    FROM Users \
+                    WHERE username = ?;',
+        parameters=[username], one=True)
+
 def create_user(username, first_name, last_name, password):
     return query_db('INSERT INTO Users (username, first_name, last_name, password) \
                      VALUES(?, ?, ?, ?);',
@@ -106,7 +112,7 @@ def update_profile(u_id, education, employment, music, movie, nationality, birth
                 movie=?, \
                 nationality=?, \
                 birthday=? \
-              WHERE username=? ;', 
+              WHERE id=? ;', 
               parameters=(education, employment, music, movie, nationality, birthday, u_id))
 
 # automatically called when application is closed, and closes db connection

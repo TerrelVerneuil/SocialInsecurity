@@ -10,19 +10,13 @@ from config import Config
 
 class LoginForm(FlaskForm):
 
-    username = StringField('Username',validators=[DataRequired(''),Regexp('^[A-Za-z][A-Za-z0-9_.]*$', 0,'ERROR'), 
-    ])
-    # def validate_LoginUsername(self,field):
-    #     usern = query_db('SELECT * FROM Users WHERE username="{}";'.format(self.username.data), one=True)
-    #     if usern != self.username.data:
-    #         raise ValidationError('Invalid username or password!')
+    username = StringField('Username',
+        validators=[DataRequired(''),
+            Regexp('^[A-Za-z][A-Za-z0-9_.]*$', 0,'ERROR')])
 
-    password = PasswordField('Password',validators=[DataRequired(''),Regexp('^[A-Za-z][A-Za-z0-9_.]*$', 0,'ERROR') 
-    ])
-    # def validate_LoginPassword(self,field):
-    #     userp = query_db('SELECT * FROM Users WHERE password="{}";'.format(self.password.data), one=True)
-    #     if userp != self.password.data:
-    #         raise ValidationError('Invalid username or password!')
+    password = PasswordField('Password',
+        validators=[DataRequired(''),
+            Regexp('^[A-Za-z][A-Za-z0-9_.]*$', 0,'ERROR')])
 
     remember_me = BooleanField('Remember me?')
     submit = SubmitField('Sign In')
@@ -59,7 +53,7 @@ class RegisterForm(FlaskForm):
     recaptcha = RecaptchaField() # added
     submit = SubmitField('Sign Up')
 
-    def check_username(self, field):
+    def validate_username(self, field):
         user = get_user(self.username.data)
         if user:
             flash('Username {} is already taken.'.format(self.username.data))
