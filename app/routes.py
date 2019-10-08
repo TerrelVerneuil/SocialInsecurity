@@ -4,7 +4,6 @@ from app import app, login_manager
 import app.db as db
 from app.auth import User, hash_password, check_password
 from app.forms import IndexForm, PostForm, FriendsForm, ProfileForm, CommentsForm
-from datetime import datetime
 from werkzeug.utils import secure_filename
 import os
 
@@ -27,7 +26,7 @@ def index():
     # login
     if form.login.validate_on_submit():
         user = db.get_user(form.login.username.data)
-        if check_password(user['password'], form.login.password.data):
+        if user and check_password(user['password'], form.login.password.data):
             login_user(User(user), remember=form.login.remember_me)
             return redirect(url_for('stream', username=form.login.username.data))
         else:
@@ -66,8 +65,7 @@ def stream(username):
 
         db.add_stream_content(current_user.id, 
                               form.content.data, 
-                              filename, 
-                              datetime.now())
+                              filename)
 
         # reload stream
         return redirect(url_for('stream', username=username))
@@ -84,16 +82,26 @@ def stream(username):
 @app.route('/comments/<username>/<int:p_id>', methods=['GET', 'POST'])
 @login_required
 def comments(username, p_id):
+    # redirect if someone tries to access other peoples friends page
+    if not current_user.username == username:
+        return redirect(url_for('comments', username=current_user.username, p_id=p_id))
+
+    post = db.get_post(p_id)
+    if not post or not (current_user.id == post['u_id'] or db.is_user_friend(current_user.id, post['u_id'])):
+        abort(404)
 
     form = CommentsForm()
     if form.is_submitted():
-        user = db.query_db('SELECT * FROM Users WHERE username=?;', parameters=(username,), one=True)
-        db.query_db('INSERT INTO Comments (p_id, u_id, comment, creation_time) VALUES(?, ?, ?, ?);', parameters=(p_id, user['id'], form.comment.data, datetime.now()))
+        db.add_comment(current_user.id, p_id, form.comment.data)
 
-
-    post = db.get_post(p_id)
     all_comments = db.get_comments(p_id)
-    return render_template('comments.html', title='Comments', username=username, form=form, post=post, comments=all_comments)
+    return render_template('comments.html', 
+                            title='Comments', 
+                            username=username, 
+                            form=form, 
+                            post=post, 
+                            comments=all_comments)
+
 
 # page for seeing and adding friends
 @app.route('/friends/<username>', methods=['GET', 'POST'])

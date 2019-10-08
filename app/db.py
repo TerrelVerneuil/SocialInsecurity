@@ -1,4 +1,5 @@
 from flask import current_app, g
+from datetime import datetime
 import sqlite3
 
 # get an instance of the db
@@ -32,21 +33,15 @@ def get_user(username):
                      WHERE username = ?;',
         parameters=[username], one=True)
 
-def get_user_id(username):
-    return query_db('SELECT * \
-                    FROM Users \
-                    WHERE username = ?;',
-        parameters=[username], one=True)
-
 def create_user(username, first_name, last_name, password):
     return query_db('INSERT INTO Users (username, first_name, last_name, password) \
                      VALUES(?, ?, ?, ?);',
                      parameters=(username, first_name, last_name, password))
 
-def add_stream_content(u_id, content, filename, date):
+def add_stream_content(u_id, content, filename):
     query_db('INSERT INTO Posts (u_id, content, image, creation_time) \
               VALUES(?, ?, ?, ?);', 
-              parameters=(u_id, content, filename, date))
+              parameters=(u_id, content, filename, datetime.now()))
         
 def get_stream_content(u_id):
     return query_db('SELECT p.*, u.*, \
@@ -80,6 +75,12 @@ def get_comments(p_id):
                      WHERE c.p_id = ? \
                      ORDER BY c.creation_time DESC;', 
                      parameters = [p_id])
+
+def add_comment(u_id, p_id, comment):
+    query_db('INSERT INTO Comments \
+                    (p_id, u_id, comment, creation_time) \
+                 VALUES(?, ?, ?, ?);', 
+                 parameters=(p_id, u_id, comment, datetime.now()))
    
 def get_all_friends(u_id):
     return query_db('SELECT * \
