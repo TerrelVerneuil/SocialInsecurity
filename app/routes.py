@@ -124,12 +124,12 @@ def profile(username):
     if current_user.username == username:
         if form.is_submitted():
             db.update_profile(current_user.id, 
-                form.education.data, 
-                form.employment.data, 
-                form.music.data, 
-                form.movie.data, 
-                form.nationality.data, 
-                form.birthday.data)
+                form.education.data or user['education'], 
+                form.employment.data or user['employment'], 
+                form.music.data or user['music'], 
+                form.movie.data or user['movie'], 
+                form.nationality.data or user['nationality'], 
+                form.birthday.data or user['birthday'])
             return redirect(url_for('profile', username=username))
     
     elif db.is_user_friend(current_user.id, user['id']):
