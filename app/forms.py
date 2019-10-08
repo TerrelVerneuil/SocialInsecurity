@@ -19,7 +19,6 @@ class LoginForm(FlaskForm):
             Regexp('^[A-Za-z][A-Za-z0-9_.]*$', 0,'ERROR')])
 
     remember_me = BooleanField('Remember me?')
-    recaptcha = RecaptchaField() # added
     submit = SubmitField('Sign In')
 
 class RegisterForm(FlaskForm):

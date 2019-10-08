@@ -32,9 +32,8 @@
                             <span style="color: red;">{{ error }} </span>
                             {% endfor %}<br>
                         </p>
-                        {{ wtf.form_field(form.login.remember_me) }}
-                        {{ form.login.recaptcha }}
-
+                        {{ form.login.remember_me.label }}<br>
+                        {{ form.login.remember_me }}<br>
                         {{ wtf.form_field(form.login.submit, class="btn btn-primary") }}
                     </form>
                 </div>
@@ -96,7 +95,7 @@
                             }
                         </style>
                         <div class="text-xs-center">
-                            <div class="g-recaptcha" data-sitekey=""></div>
+                            <div class="g-recaptcha"data-sitekey=""></div>
                         </div>
                         <p>
                             {{ wtf.form_field(form.register.submit, class="btn btn-primary") }}

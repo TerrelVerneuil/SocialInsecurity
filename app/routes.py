@@ -27,7 +27,7 @@ def index():
     # login
     if form.login.validate_on_submit():
         user = db.get_user(form.login.username.data)
-        if check_password(user['password'], form.login.password.data):
+        if user and check_password(user['password'], form.login.password.data):
             login_user(User(user), remember=form.login.remember_me)
             return redirect(url_for('stream', username=form.login.username.data))
         else:
