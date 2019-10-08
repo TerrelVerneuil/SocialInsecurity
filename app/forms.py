@@ -1,16 +1,12 @@
 from flask import Flask, render_template,flash # 1.1 
 from flask_wtf import FlaskForm, RecaptchaField
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, FormField, TextAreaField, FileField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, FormField, TextAreaField
+from flask_wtf.file import FileField, FileAllowed
 from wtforms.fields.html5 import DateField
-
 from wtforms.validators import InputRequired, DataRequired, ValidationError, Regexp, NoneOf, length, EqualTo
-from app import app, query_db
-# from somemodule import SomeCSRF
-
-# defines all forms in the application, these will be instantiated by the template,
-# and the routes.py will read the values of the fields
-# TODO: Add validation, maybe use wtforms.validators?? # Done
-# TODO: There was some important security feature that wtforms provides, but I don't remember what; implement it
+from app import app
+from app.db import get_user
+from config import Config
 
 class LoginForm(FlaskForm):
 
@@ -28,45 +24,51 @@ class LoginForm(FlaskForm):
     #     if userp != self.password.data:
     #         raise ValidationError('Invalid username or password!')
 
-    remember_me = BooleanField('Remember me?') # TODO: It would be nice to have this feature implemented, probably by using cookies
+    remember_me = BooleanField('Remember me?')
     submit = SubmitField('Sign In')
 
 class RegisterForm(FlaskForm):
-    first_name = StringField('First Name',validators=[DataRequired('Enter first name'),
-     length(min=3, max=20, message='Must be between 3-20 characters' ),
-     Regexp('^[A-Za-z][A-Za-z]*$', 0,'only letters allowed')], 
-     render_kw={'placeholder': 'First Name'})# changed #1.1
-    last_name = StringField('Last Name',validators=[DataRequired(message='Enter last name'), 
-    length(min=3, max=20, message='Must be between 3-20 characters' ), 
-    Regexp('^[A-Za-z][A-Za-z]*$', 0,'only letters allowed')], 
-    render_kw={'placeholder': 'Last Name'})# changed #1.1
-    username = StringField('Username', validators=[DataRequired(message='A username is required!'), 
-    length(min=8, max=30, message='Must be between 8-30 characters' ), 
-    Regexp('^[A-Za-z][A-Za-z0-9_.]*$', 0,'Usernames must have only letters,numbers, dots or underscores')], 
-    render_kw={'placeholder': 'username'}) # changed #1.1
-    def validate_username(self,field):
+    first_name = StringField('First Name',
+        validators=[DataRequired('Enter first name'),
+            length(min=3, max=20, message='Must be between 3-20 characters' ),
+            Regexp('^[A-Za-z][A-Za-z]*$', 0,'only letters allowed')], 
+        render_kw={'placeholder': 'First Name'})# changed #1.1
 
-        user = query_db('SELECT * FROM Users WHERE username="{}";'.format(self.username.data), one=True)
-        if user:
-            flash('Username {} is already taken.'.format(self.username.data))
-            raise ValidationError('Username {} already taken.'.format(self.username.data))
+    last_name = StringField('Last Name',
+        validators=[DataRequired(message='Enter last name'), 
+            length(min=3, max=20, message='Must be between 3-20 characters' ), 
+            Regexp('^[A-Za-z][A-Za-z]*$', 0,'only letters allowed')], 
+        render_kw={'placeholder': 'Last Name'})# changed #1.1
+    
+    username = StringField('Username', 
+        validators=[DataRequired(message='A username is required!'), 
+            length(min=8, max=30, message='Must be between 8-30 characters' ), 
+            Regexp('^[A-Za-z][A-Za-z0-9_.]*$', 0,'Usernames must have only letters,numbers, dots or underscores')], 
+        render_kw={'placeholder': 'username'}) # changed #1.1
    
-    password = PasswordField('Password', validators=[DataRequired('Password is required!'), 
-    length(min=10, max=30, message='Must be between 10-30 characters' ), 
-    Regexp('^[A-Za-z][A-Za-z0-9_.]*$', 0,'Password must have only letters,numbers, dots or underscores')], 
-    render_kw={'placeholder': 'password'}) # changed #1.1
-    def validate_password(self,field):
-
-        if (field.data == self.username.data):
-            flash('password cannot be same as username', field.data)
-            raise ValidationError('password cannot be same as username')
+    password = PasswordField('Password', 
+        validators=[DataRequired('Password is required!'), 
+            length(min=10, max=30, message='Must be between 10-30 characters' ), 
+            Regexp('^[A-Za-z][A-Za-z0-9_.]*$', 0,'Password must have only letters,numbers, dots or underscores')], 
+        render_kw={'placeholder': 'password'}) # changed #1.1
 
     confirm_password = PasswordField('Confirm Password', 
-    validators=[EqualTo ('password', message='confirm password must match')], 
-    render_kw={'placeholder': 'Confirm password'}) # changed#1.1
+        validators=[EqualTo ('password', message='confirm password must match')], 
+        render_kw={'placeholder': 'Confirm password'}) # changed#1.1
+    
     recaptcha = RecaptchaField() # added
     submit = SubmitField('Sign Up')
 
+    def check_username(self, field):
+        user = get_user(self.username.data)
+        if user:
+            flash('Username {} is already taken.'.format(self.username.data))
+            raise ValidationError('Username {} already taken.'.format(self.username.data))
+
+    def validate_password(self, field):
+        if (field.data == self.username.data):
+            flash('password cannot be same as username', field.data)
+            raise ValidationError('password cannot be same as username')
 
 class IndexForm(FlaskForm):
     login = FormField(LoginForm)
@@ -74,7 +76,9 @@ class IndexForm(FlaskForm):
 
 class PostForm(FlaskForm):
     content = TextAreaField('New Post', render_kw={'placeholder': 'What are you thinking about?'})
-    image = FileField('Image')
+    image = FileField('Image', validators=[
+        FileAllowed(Config.ALLOWED_EXTENSIONS, 'Images only!')
+    ])
     submit = SubmitField('Post')
 
 class CommentsForm(FlaskForm):
