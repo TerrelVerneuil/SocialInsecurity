@@ -18,7 +18,7 @@ def init_db():
             db.cursor().executescript(f.read())
         db.commit()
 
-# perform generic query, not very secure yet
+# perform query
 def query_db(query, parameters=(), one=False):
     db = get_db()
     cursor = db.execute(query, parameters)
@@ -34,7 +34,8 @@ def get_user(username):
         parameters=[username], one=True)
 
 def create_user(username, first_name, last_name, password):
-    return query_db('INSERT INTO Users (username, first_name, last_name, password) \
+    return query_db('INSERT INTO Users \
+                        (username, first_name, last_name, password) \
                      VALUES(?, ?, ?, ?);',
                      parameters=(username, first_name, last_name, password))
 

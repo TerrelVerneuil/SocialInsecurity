@@ -39,7 +39,6 @@ def index():
                        form.register.last_name.data, 
                        hash_password(form.register.password.data))
         flash('successfully created {} as username'.format(form.register.username.data))
-        return redirect(url_for('index'))
 
     # GET
     return render_template('index.html', title='Welcome', form=form)
@@ -93,6 +92,7 @@ def comments(username, p_id):
     form = CommentsForm()
     if form.is_submitted():
         db.add_comment(current_user.id, p_id, form.comment.data)
+        post = db.get_post(p_id)
 
     all_comments = db.get_comments(p_id)
     return render_template('comments.html', 
