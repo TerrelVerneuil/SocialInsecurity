@@ -1,6 +1,8 @@
 __pycache__
 .vscode
 reports
+OLD
+
 
 config.py
 database.db
