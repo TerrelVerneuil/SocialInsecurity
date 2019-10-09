@@ -1,6 +1,15 @@
 {% extends "base.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
 {% block content %}
+<style>
+    .text-xs-center {
+        text-align: center;
+    }
+
+    .g-recaptcha {
+        display: inline-block;
+    }
+</style>
 <div class="jumbotron jumbotron-fluid">
     <div class="container">
         <h1 class="display-4">Social Insecurity</h1>
@@ -83,19 +92,7 @@
                             <span style="color: red;">{{ error }} </span>
                             {% endfor %}<br>
                         </p>
-                        {{ form.register.recaptcha }}
-                        <style>
-                            .text-xs-center {
-                                text-align: center;
-                            }
-
-                            .g-recaptcha {
-                                display: inline-block;
-                            }
-                        </style>
-                        <div class="text-xs-center">
-                            <div class="g-recaptcha" data-sitekey=""></div>
-                        </div>
+                            {{ form.register.recaptcha }}
                         <p>
                             {{ wtf.form_field(form.register.submit, class="btn btn-primary") }}
                         </p>

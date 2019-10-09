@@ -33,6 +33,12 @@ def get_user(username):
                      WHERE username = ?;',
         parameters=[username], one=True)
 
+def get_user_from_id(u_id):
+    return query_db('SELECT * \
+                     FROM Users \
+                     WHERE id = ?;',
+        parameters=[u_id], one=True)     
+
 def create_user(username, first_name, last_name, password):
     return query_db('INSERT INTO Users \
                         (username, first_name, last_name, password) \

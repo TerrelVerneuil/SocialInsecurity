@@ -1,4 +1,4 @@
-from flask import Flask, render_template,flash # 1.1 
+from flask import Flask, render_template, flash # 1.1 
 from flask_wtf import FlaskForm, RecaptchaField
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, FormField, TextAreaField
 from flask_wtf.file import FileField, FileAllowed
@@ -10,14 +10,15 @@ from config import Config
 
 class LoginForm(FlaskForm):
 
-    username = StringField('Username',
-        validators=[DataRequired(''),
-            Regexp('^[A-Za-z][A-Za-z0-9_.]*$', 0,'ERROR')])
+    username = StringField('Username')
+        # validators=[DataRequired(''),
+        #     Regexp('^[A-Za-z][A-Za-z0-9_.]*$', 0,'ERROR')])
 
     password = PasswordField('Password',
         validators=[DataRequired(''),
             Regexp('^[A-Za-z][A-Za-z0-9_.]*$', 0,'ERROR')])
 
+    # login_recaptcha = RecaptchaField()
     remember_me = BooleanField('Remember me?')
     submit = SubmitField('Sign In')
 

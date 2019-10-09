@@ -1,10 +1,11 @@
-from flask import render_template, flash, redirect, url_for, request, abort
+from flask import render_template, flash, redirect, url_for, request
 from flask_login import login_user, logout_user, login_required, current_user
 from app import app, login_manager
 import app.db as db
 from app.auth import User, hash_password, check_password
 from app.forms import IndexForm, PostForm, FriendsForm, ProfileForm, CommentsForm
 from werkzeug.utils import secure_filename
+from datetime import datetime
 import os
 
 # this file contains all the different routes, and the logic for communicating with the database
@@ -22,8 +23,7 @@ def index():
     logout_user()
     form = IndexForm()
    
-    # POST
-    # login
+    # POST: login
     if form.login.validate_on_submit():
         user = db.get_user(form.login.username.data)
         if user and check_password(user['password'], form.login.password.data):
@@ -32,7 +32,7 @@ def index():
         else:
             flash('Invalid username or password!')
 
-    # register
+    # POST: register
     elif form.register.validate_on_submit():
         db.create_user(form.register.username.data, 
                        form.register.first_name.data, 
@@ -47,7 +47,7 @@ def index():
 @app.route('/stream/<username>', methods=['GET', 'POST'])
 @login_required
 def stream(username):
-    # redirect if someone tries to access other peoples homepage
+    # redirect if someone tries to access other people's stream
     if not current_user.username == username:
         return redirect(url_for('stream', username=current_user.username))
     
@@ -56,7 +56,8 @@ def stream(username):
     if form.validate_on_submit():
         f = form.image.data
         if f:
-            filename = secure_filename(f.filename)
+            now = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S")
+            filename = secure_filename(now + '_' + str(current_user.username) + '_' + f.filename)
             path = os.path.join(app.config['UPLOAD_PATH'], filename) 
             f.save(path)
         else:
@@ -87,7 +88,7 @@ def comments(username, p_id):
 
     post = db.get_post(p_id)
     if not post or not (current_user.id == post['u_id'] or db.is_user_friend(current_user.id, post['u_id'])):
-        abort(404)
+        return render_template('404.html', title='Comments', username=username), 404
 
     form = CommentsForm()
     if form.is_submitted():
@@ -140,11 +141,11 @@ def profile(username):
                 form.birthday.data or user['birthday'])
             return redirect(url_for('profile', username=username))
     
-    elif db.is_user_friend(current_user.id, user['id']):
+    elif user and db.is_user_friend(current_user.id, user['id']):
         for field in form:
             field.render_kw = {'disabled': 'disabled'}
     else:
-        return abort(404)
+        return render_template('404.html', title='profile', username=username), 404
     
     return render_template('profile.html', title='profile', username=username, user=user, form=form)
     

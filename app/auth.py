@@ -1,6 +1,6 @@
 from flask_login import AnonymousUserMixin, UserMixin
 from argon2 import PasswordHasher
-from app.db import query_db
+from app.db import get_user_from_id
 
 ph = PasswordHasher()
 
@@ -22,8 +22,8 @@ class User(UserMixin):
         self.username = user['username']
 
     @staticmethod
-    def get(id):
-        user = query_db('SELECT * FROM Users WHERE id=?;',parameters=(id,), one=True)
-        if user == None:
-            return AnonymousUserMixin()
-        return User(user)
+    def get(user_id):
+        user = get_user_from_id(user_id)
+        if user:
+            return User(user)
+        return AnonymousUserMixin()
