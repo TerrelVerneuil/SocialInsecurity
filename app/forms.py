@@ -20,6 +20,8 @@ class LoginForm(FlaskForm):
 
     # login_recaptcha = RecaptchaField()
     remember_me = BooleanField('Remember me?')
+
+    recaptcha = RecaptchaField()  
     submit = SubmitField('Sign In')
 
 class RegisterForm(FlaskForm):
@@ -51,7 +53,6 @@ class RegisterForm(FlaskForm):
         validators=[EqualTo ('password', message='confirm password must match')], 
         render_kw={'placeholder': 'Confirm password'}) #  
     
-    # recaptcha = RecaptchaField() #  
     submit = SubmitField('Sign Up')
 
     def validate_username(self, field):

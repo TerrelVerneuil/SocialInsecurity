@@ -43,7 +43,10 @@
                         </p>
                         {{ form.login.remember_me.label }}<br>
                         {{ form.login.remember_me }}<br>
+                        {{ form.login.recaptcha }}
+                        <p>
                         {{ wtf.form_field(form.login.submit, class="btn btn-primary") }}
+                        </p>
                     </form>
                 </div>
             </div>
@@ -93,7 +96,6 @@
                             <span style="color: red;">{{ error }} </span>
                             {% endfor %}<br>
                         </p>
-                            {{ form.register.recaptcha }}
                         <p>
                             {{ wtf.form_field(form.register.submit, class="btn btn-primary") }}
                         </p>
