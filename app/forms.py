@@ -20,7 +20,6 @@ class LoginForm(FlaskForm):
 
     # login_recaptcha = RecaptchaField()
     remember_me = BooleanField('Remember me?')
-    recaptcha2 = RecaptchaField() # added
     submit = SubmitField('Sign In')
 
 class RegisterForm(FlaskForm):
@@ -28,31 +27,31 @@ class RegisterForm(FlaskForm):
         validators=[DataRequired('Enter first name'),
             length(min=2, max=20, message='Must be between 2-20 characters' ),
             Regexp('^[A-Za-z][A-Za-z]*$', 0,'only letters allowed')], 
-        render_kw={'placeholder': 'First Name'})# changed #1.1
+        render_kw={'placeholder': 'First Name'})#  
 
     last_name = StringField('Last Name',
         validators=[DataRequired(message='Enter last name'), 
             length(min=2, max=20, message='Must be between 2-20 characters' ), 
             Regexp('^[A-Za-z][A-Za-z]*$', 0,'only letters allowed')], 
-        render_kw={'placeholder': 'Last Name'})# changed #1.1
+        render_kw={'placeholder': 'Last Name'})#  
     
     username = StringField('Username', 
         validators=[DataRequired(message='A username is required!'), 
-            length(min=8, max=30, message='Must be between 8-30 characters' ), 
+            length(min=6, max=30, message='Must be between 6-30 characters' ), 
             Regexp('^[A-Za-z][A-Za-z0-9_.]*$', 0,'Usernames must have only letters,numbers, dots or underscores')], 
-        render_kw={'placeholder': 'username'}) # changed #1.1
+        render_kw={'placeholder': 'username'}) #  
    
     password = PasswordField('Password', 
         validators=[DataRequired('Password is required!'), 
-            length(min=10, max=30, message='Must be between 10-30 characters' ), 
+            length(min=8, max=30, message='Must be between 8-30 characters' ), 
             Regexp('^[A-Za-z][A-Za-z0-9_.]*$', 0,'Password must have only letters,numbers, dots or underscores')], 
-        render_kw={'placeholder': 'password'}) # changed #1.1
+        render_kw={'placeholder': 'password'}) #  
 
     confirm_password = PasswordField('Confirm Password', 
         validators=[EqualTo ('password', message='confirm password must match')], 
-        render_kw={'placeholder': 'Confirm password'}) # changed#1.1
+        render_kw={'placeholder': 'Confirm password'}) #  
     
-    recaptcha = RecaptchaField() # added
+    # recaptcha = RecaptchaField() #  
     submit = SubmitField('Sign Up')
 
     def validate_username(self, field):

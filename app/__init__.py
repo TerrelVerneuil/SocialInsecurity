@@ -21,7 +21,7 @@ db.init_app(app)
 # initialize db if it does not exist
 import os
 if not os.path.exists(app.config['DATABASE']):
-    db.init_db()
+    db.init_db(app)
 
 if not os.path.exists(app.config['UPLOAD_PATH']):
     os.mkdir(app.config['UPLOAD_PATH'])

@@ -2,6 +2,15 @@ from flask import current_app, g
 from datetime import datetime
 import sqlite3
 
+# automatically called when application is closed, and closes db connection
+def init_app(app):
+    app.teardown_appcontext(close_connection)
+
+def close_connection(exception):
+    db = getattr(g, '_database', None)
+    if db is not None:
+        db.close()
+
 # get an instance of the db
 def get_db():
     db = getattr(g, '_database', None)
@@ -11,10 +20,10 @@ def get_db():
     return db
 
 # initialize db for the first time
-def init_db():
-    with current_app.app_context():
+def init_db(app):
+    with app.app_context():
         db = get_db()
-        with current_app.open_resource('schema.sql', mode='r') as f:
+        with app.open_resource('schema.sql', mode='r') as f:
             db.cursor().executescript(f.read())
         db.commit()
 
@@ -119,12 +128,3 @@ def update_profile(u_id, education, employment, music, movie, nationality, birth
                 birthday=? \
               WHERE id=? ;', 
               parameters=(education, employment, music, movie, nationality, birthday, u_id))
-
-# automatically called when application is closed, and closes db connection
-def init_app(app):
-    app.teardown_appcontext(close_connection)
-
-def close_connection(exception):
-    db = getattr(g, '_database', None)
-    if db is not None:
-        db.close()
