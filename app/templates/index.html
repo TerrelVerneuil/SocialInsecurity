@@ -41,7 +41,8 @@
                             <span style="color: red;">{{ error }} </span>
                             {% endfor %}<br>
                         </p>
-                        {{ wtf.form_field(form.login.remember_me) }}
+                        {{ form.login.remember_me.label }}<br>
+                        {{ form.login.remember_me }}<br>
                         {{ wtf.form_field(form.login.submit, class="btn btn-primary") }}
                     </form>
                 </div>

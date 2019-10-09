@@ -20,18 +20,19 @@ class LoginForm(FlaskForm):
 
     # login_recaptcha = RecaptchaField()
     remember_me = BooleanField('Remember me?')
+    recaptcha2 = RecaptchaField() # added
     submit = SubmitField('Sign In')
 
 class RegisterForm(FlaskForm):
     first_name = StringField('First Name',
         validators=[DataRequired('Enter first name'),
-            length(min=3, max=20, message='Must be between 3-20 characters' ),
+            length(min=2, max=20, message='Must be between 2-20 characters' ),
             Regexp('^[A-Za-z][A-Za-z]*$', 0,'only letters allowed')], 
         render_kw={'placeholder': 'First Name'})# changed #1.1
 
     last_name = StringField('Last Name',
         validators=[DataRequired(message='Enter last name'), 
-            length(min=3, max=20, message='Must be between 3-20 characters' ), 
+            length(min=2, max=20, message='Must be between 2-20 characters' ), 
             Regexp('^[A-Za-z][A-Za-z]*$', 0,'only letters allowed')], 
         render_kw={'placeholder': 'Last Name'})# changed #1.1
     
