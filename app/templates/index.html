@@ -34,19 +34,22 @@
                         </p>
                         {{ form.login.remember_me.label }}<br>
                         {{ form.login.remember_me }}<br>
-                        {{ form.login.recaptcha2 }}
-                        <!-- <style>
-                            .text-xs-center2 {
-                                text-align: center;
+                        {{ form.login.recaptcha }}
+                        <style>
+                            .text-xs-center {
+                                text-align: center;
                             }
-                            .g-recaptcha2 {
-                                display: inline-block;
+
+                            .g-recaptcha {
+                                display: inline-block;
                             }
                         </style>
-                        <div class="text-xs-Lcenter2">
-                            <div class="g-recaptcha2"></div>
-                        </div> -->
+                        <div class="text-xs-center">
+                            <div class="g-recaptcha"></div>
+                        </div>
+                        <p>
                         {{ wtf.form_field(form.login.submit, class="btn btn-primary") }}
+                        </p>
                     </form>
                 </div>
             </div>
@@ -96,19 +99,6 @@
                             <span style="color: red;">{{ error }} </span>
                             {% endfor %}<br>
                         </p>
-                        {{ form.register.recaptcha }}
-                        <style>
-                            .text-xs-center {
-                                text-align: center;
-                            }
-
-                            .g-recaptcha {
-                                display: inline-block;
-                            }
-                        </style>
-                        <div class="text-xs-center">
-                            <div class="g-recaptcha"></div>
-                        </div>
                         <p>
                             {{ wtf.form_field(form.register.submit, class="btn btn-primary") }}
                         </p>

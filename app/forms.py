@@ -19,7 +19,8 @@ class LoginForm(FlaskForm):
             Regexp('^[A-Za-z][A-Za-z0-9_.]*$', 0,'ERROR')])
 
     remember_me = BooleanField('Remember me?')
-    recaptcha2 = RecaptchaField() # added
+
+    recaptcha = RecaptchaField()  
     submit = SubmitField('Sign In')
 
 class RegisterForm(FlaskForm):
@@ -51,7 +52,6 @@ class RegisterForm(FlaskForm):
         validators=[EqualTo ('password', message='confirm password must match')], 
         render_kw={'placeholder': 'Confirm password'}) # changed#1.1
     
-    recaptcha = RecaptchaField() # added
     submit = SubmitField('Sign Up')
 
     def validate_username(self, field):
