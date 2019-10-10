@@ -21,7 +21,7 @@ class LoginForm(FlaskForm):
     # login_recaptcha = RecaptchaField()
     remember_me = BooleanField('Remember me?')
 
-    recaptcha = RecaptchaField()  
+    # recaptcha = RecaptchaField()  
     submit = SubmitField('Sign In')
 
 class RegisterForm(FlaskForm):

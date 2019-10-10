@@ -91,7 +91,7 @@ def comments(username, p_id):
         return render_template('404.html', title='Comments', username=username), 404
 
     form = CommentsForm()
-    if form.is_submitted():
+    if form.validate_on_submit():
         db.add_comment(current_user.id, p_id, form.comment.data)
         post = db.get_post(p_id)
 
@@ -113,10 +113,12 @@ def friends(username):
         return redirect(url_for('friends', username=current_user.username))
 
     form = FriendsForm()
-    if form.is_submitted():
+    if form.validate_on_submit():
         friend = db.get_user(form.username.data)
         if friend is None:
             flash('User does not exist')
+        elif db.is_user_friend(current_user.id, friend['id']):
+            flash('Already friends')
         else:
             db.add_friend(current_user.id, friend['id'])
             flash('Friend request sent') # TODO add friend request?
@@ -131,7 +133,7 @@ def profile(username):
     form = ProfileForm()
     user = db.get_user(username)
     if current_user.username == username:
-        if form.is_submitted():
+        if form.validate_on_submit():
             db.update_profile(current_user.id, 
                 form.education.data or user['education'], 
                 form.employment.data or user['employment'], 
