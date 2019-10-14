@@ -5,7 +5,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-        <link rel="stylesheet" href="/static/css/general.css">
+        <link rel="stylesheet" href="../static/css/general.css">
         <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
         <!-- Bootstrap CSS -->
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
@@ -41,13 +41,13 @@
                 </li>
                 <li class="nav-item">
                     {% if title == 'Profile' %}
-                    <a class="nav-link" href={{ url_for('profile', username=username) }}>Profile <span class="sr-only">(current)</span></a>
+                    <a class="nav-link active" href={{ url_for('profile', username=username) }}>Profile <span class="sr-only">(current)</span></a>
                     {% else %}
                     <a class="nav-link" href={{ url_for('profile', username=username) }}>Profile</a>
                     {% endif %}
                 </li>
             </ul>
-            <a class="btn btn-outline-dark" href={{url_for('index')}} role="button">Log Out</a>
+            <a class="btn btn-outline-dark" href={{url_for('logout')}} role="button">Log Out</a>
             </div>
         </nav>
         {% endif %}

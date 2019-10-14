@@ -1,84 +1,50 @@
-from flask import Flask, render_template, flash # 1.1 
-from flask_wtf import FlaskForm, RecaptchaField
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, FormField, TextAreaField
-from flask_wtf.file import FileField, FileAllowed
+from flask_wtf import FlaskForm, form
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, FormField, TextAreaField, FileField, validators
 from wtforms.fields.html5 import DateField
-from wtforms.validators import InputRequired, DataRequired, ValidationError, Regexp, NoneOf, length, EqualTo
-from app import app
-from app.db import get_user
-from config import Config
+from flask_wtf.file import FileAllowed
+
+# defines all forms in the application, these will be instantiated by the template,
+# and the routes.py will read the values of the fields
+
 
 class LoginForm(FlaskForm):
-
-    username = StringField('Username')
-        # validators=[DataRequired(''),
-        #     Regexp('^[A-Za-z][A-Za-z0-9_.]*$', 0,'ERROR')])
-
-    password = PasswordField('Password',
-        validators=[DataRequired(''),
-            Regexp('^[A-Za-z][A-Za-z0-9_.]*$', 0,'ERROR')])
-
-    # login_recaptcha = RecaptchaField()
-    remember_me = BooleanField('Remember me?')
-
-    # recaptcha = RecaptchaField()  
+    username = StringField('Username', render_kw={'placeholder': 'Username'})
+    password = PasswordField('Password', render_kw={'placeholder': 'Password'})
+    remember_me = BooleanField('Remember me') # TODO: It would be nice to have this feature implemented, probably by using cookies
     submit = SubmitField('Sign In')
 
 class RegisterForm(FlaskForm):
-    first_name = StringField('First Name',
-        validators=[DataRequired('Enter first name'),
-            length(min=2, max=20, message='Must be between 2-20 characters' ),
-            Regexp('^[A-Za-z][A-Za-z]*$', 0,'only letters allowed')], 
-        render_kw={'placeholder': 'First Name'})#  
-
-    last_name = StringField('Last Name',
-        validators=[DataRequired(message='Enter last name'), 
-            length(min=2, max=20, message='Must be between 2-20 characters' ), 
-            Regexp('^[A-Za-z][A-Za-z]*$', 0,'only letters allowed')], 
-        render_kw={'placeholder': 'Last Name'})#  
-    
-    username = StringField('Username', 
-        validators=[DataRequired(message='A username is required!'), 
-            length(min=6, max=30, message='Must be between 6-30 characters' ), 
-            Regexp('^[A-Za-z][A-Za-z0-9_.]*$', 0,'Usernames must have only letters,numbers, dots or underscores')], 
-        render_kw={'placeholder': 'username'}) #  
-   
-    password = PasswordField('Password', 
-        validators=[DataRequired('Password is required!'), 
-            length(min=8, max=30, message='Must be between 8-30 characters' ), 
-            Regexp('^[A-Za-z][A-Za-z0-9_.]*$', 0,'Password must have only letters,numbers, dots or underscores')], 
-        render_kw={'placeholder': 'password'}) #  
-
-    confirm_password = PasswordField('Confirm Password', 
-        validators=[EqualTo ('password', message='confirm password must match')], 
-        render_kw={'placeholder': 'Confirm password'}) #  
-    
+    first_name = StringField('First Name', [validators.DataRequired()], render_kw={'placeholder': 'First Name'})
+    last_name = StringField('Last Name', [validators.DataRequired()], render_kw={'placeholder': 'Last Name'})
+    username = StringField('Username', [validators.DataRequired()],render_kw={'placeholder':  'Username'})
+    password = PasswordField('Password', [validators.EqualTo('confirm_password', message='The passwords must match'),
+     validators.DataRequired(),
+     validators.regexp("^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z0-9!@#$&()\\-`.+,/\"]{8,}$", 
+     message='The password must contain minimum eight characters, at least one uppercase letter, one lowercase letter and one number :))  ')],
+      render_kw={'placeholder': 'Password'})
+    confirm_password = PasswordField('Confirm Password', [validators.DataRequired()], render_kw={'placeholder': 'Confirm Password'})
     submit = SubmitField('Sign Up')
-
-    def validate_username(self, field):
-        user = get_user(self.username.data)
-        if user:
-            flash('Username {} is already taken.'.format(self.username.data))
-            raise ValidationError('Username {} already taken.'.format(self.username.data))
-
-    def validate_password(self, field):
-        if (field.data == self.username.data):
-            flash('password cannot be same as username', field.data)
-            raise ValidationError('password cannot be same as username')
 
 class IndexForm(FlaskForm):
     login = FormField(LoginForm)
     register = FormField(RegisterForm)
 
 class PostForm(FlaskForm):
-    content = TextAreaField('New Post', render_kw={'placeholder': 'What are you thinking about?'})
-    image = FileField('Image', validators=[
-        FileAllowed(Config.ALLOWED_EXTENSIONS, 'Images only!')
-    ])
+    content = TextAreaField('New Post', [
+        validators.regexp('^[ÆØÅæøåA-Za-z0-9_-]{3,120}$'), 
+        validators.data_required()
+    ]
+    ,
+     render_kw={'placeholder': 'What are you thinking about?'})
+    image = FileField('Image', validators=[FileAllowed(['jpg', 'png', 'jpeg', 'gif'], 'Only jpg, jpeg, png or gif files')])
     submit = SubmitField('Post')
 
 class CommentsForm(FlaskForm):
-    comment = TextAreaField('New Comment', render_kw={'placeholder': 'What do you have to say?'})
+    comment = TextAreaField('New Comment', [
+        validators.regexp('^[ÆØÅæøåA-Za-z0-9_-]{3,120}$'), 
+        validators.data_required()
+    ]
+    , render_kw={'placeholder': 'What do you have to say?'})
     submit = SubmitField('Comment')
 
 class FriendsForm(FlaskForm):

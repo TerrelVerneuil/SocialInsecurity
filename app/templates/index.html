@@ -1,15 +1,6 @@
 {% extends "base.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
-{% block content %}
-<style>
-    .text-xs-center {
-        text-align: center;
-    }
-
-    .g-recaptcha {
-        display: inline-block;
-    }
-</style>
+{% block content %}    
 <div class="jumbotron jumbotron-fluid">
     <div class="container">
         <h1 class="display-4">Social Insecurity</h1>
@@ -25,28 +16,14 @@
                 </div>
                 <div class="card-body">
                     <h5 class="card-title">Access an existing profile</h5>
-                    <form action="" method="POST">
-                        {{ form.login.csrf_token }}
-                        <p>
-                            {{ form.login.username.label }}<br>
-                            {{ form.login.username(size=120) }}<br>
-                            {% for error in form.login.username.errors %}
-                            <span style="color: red;">{{ error }} </span>
-                            {% endfor %}<br>
-                        </p>
-                        <p>
-                            {{ form.login.password.label }}<br>
-                            {{ form.login.password(size=120) }}<br>
-                            {% for error in form.login.password.errors %}
-                            <span style="color: red;">{{ error }} </span>
-                            {% endfor %}<br>
-                        </p>
-                        {{ form.login.remember_me.label }}<br>
-                        {{ form.login.remember_me }}<br>
-                        {{ form.login.recaptcha }}
-                        <p>
+                    <form action="" method="POST" novalidate>
+                        {{ form.login.hidden_tag() }}
+                        {{ wtf.form_field(form.login.username) }}
+                        {{ wtf.form_field(form.login.password) }}
+                        {{ wtf.form_field(form.login.remember_me) }}
+                        <!-- just to register token, needed when validating -->
+                        <span style="display: none">{{ wtf.form_field(form.login.csrf_token) }}</span>
                         {{ wtf.form_field(form.login.submit, class="btn btn-primary") }}
-                        </p>
                     </form>
                 </div>
             </div>
@@ -57,49 +34,18 @@
                     Register
                 </div>
                 <div class="card-body">
-
                     <h5 class="card-title">Create a new profile</h5>
-                    <form action="" method="POST">
-                        {{ form.register.csrf_token }}
-                        <p>
-                            {{ form.register.first_name.label }}<br>
-                            {{ form.register.first_name(size=120) }}<br>
-                            {% for error in form.register.first_name.errors %}
-                            <span style="color: red;">{{ error }} </span>
-                            {% endfor %}<br>
-                        </p>
-                        <p>
-                            {{ form.register.last_name.label }}<br>
-                            {{ form.register.last_name(size=120) }}<br>
-                            {% for error in form.register.last_name.errors %}
-                            <span style="color: red;">{{ error }} </span>
-                            {% endfor %}<br>
-                        </p>
-                        <p>
-                            {{ form.register.username.label }}<br>
-                            {{ form.register.username(size=120) }}<br>
-                            {% for error in form.register.username.errors %}
-                            <span style="color: red;">{{ error }} </span>
-                            {% endfor %}<br>
-                        </p>
-                        <p>
-                            {{ form.register.password.label }}<br>
-                            {{ form.register.password(size=120) }}<br>
-                            {% for error in form.register.password.errors %}
-                            <span style="color: red;">{{ error }} </span>
-                            {% endfor %}<br>
-                        </p>
-                        <p>
-                            {{ form.register.confirm_password.label }}<br>
-                            {{ form.register.confirm_password(size=120) }}<br>
-                            {% for error in form.register.confirm_password.errors %}
-                            <span style="color: red;">{{ error }} </span>
-                            {% endfor %}<br>
-                        </p>
-                        <p>
-                            {{ wtf.form_field(form.register.submit, class="btn btn-primary") }}
-                        </p>
+                    <form action="", method="POST" novalidate>
+                        {{ form.login.hidden_tag() }}
+                        {{ wtf.form_field(form.register.first_name) }}
+                        {{ wtf.form_field(form.register.last_name) }}
+                        {{ wtf.form_field(form.register.username) }}
+                        {{ wtf.form_field(form.register.password) }}
+                        {{ wtf.form_field(form.register.confirm_password) }}
 
+                        <!-- just to register token, needed when validating -->
+                        <span style="display: none">{{ wtf.form_field(form.register.csrf_token) }}</span>
+                        {{ wtf.form_field(form.register.submit, class="btn btn-primary") }}
                     </form>
                 </div>
             </div>
