@@ -56,9 +56,9 @@
                         </ul>
                     </div>
                     <!--Edit details-->
-                    <div id="edit-details" style="display: none;">
-                        <form action="" method="POST" novalidate>
-                            {{ wtf.form_field(form.education) }}
+                     <form action="" id="form-1" method="POST" novalidate>
+                            <input type="hidden" name="csrf_token" value="$csrf_token()"/>
+
                             {{ wtf.form_field(form.employment) }}
                             {{ wtf.form_field(form.music) }}
                             {{ wtf.form_field(form.movie) }}
