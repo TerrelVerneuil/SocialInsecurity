@@ -8,17 +8,17 @@ from wtforms.fields.html5 import DateField
 # TODO: There was some important security feature that wtforms provides, but I don't remember what; implement it
 
 class LoginForm(FlaskForm):
-    username = StringField('Username', render_kw={'placeholder': 'Username'})
-    password = PasswordField('Password', render_kw={'placeholder': 'Password'})
+    username = StringField('Username', validators= [DataRequired(), Length(min=3, max=32)])
+    password = PasswordField('Password',  validators=[DataRequired(), Length(min=4, max=20)])
     remember_me = BooleanField('Remember me') # TODO: It would be nice to have this feature implemented, probably by using cookies
     submit = SubmitField('Sign In')
 
 class RegisterForm(FlaskForm):
-    first_name = StringField('First Name', render_kw={'placeholder': 'First Name'})
-    last_name = StringField('Last Name', render_kw={'placeholder': 'Last Name'})
-    username = StringField('Username', render_kw={'placeholder': 'Username'})
-    password = PasswordField('Password', render_kw={'placeholder': 'Password'})
-    confirm_password = PasswordField('Confirm Password', render_kw={'placeholder': 'Confirm Password'})
+    first_name = StringField('First Name', validators=[DataRequired(), Length(min=1, max=20)])
+    last_name = StringField('Last Name', validators=[DataRequired(), Length(min=1, max=20)])
+    username = StringField('Username', validators= [DataRequired(), Length(min=3, max=32)])
+    password = PasswordField('Password', validators=[DataRequired(), Length(min=4, max=20)])
+    confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password',message='passwords must match')])
     submit = SubmitField('Sign Up')
 
 class IndexForm(FlaskForm):
