@@ -19,8 +19,8 @@
                     {% endif %}
                     <h4 class="card-text">Comments</h4>
                     <form action="" method="POST" novalidate>
-                          <input type="hidden" name="csrf_token" value="$csrf_token()"/>
-
+                          
+                         {{ form.hidden_tag() }}
                         {{ wtf.form_field(form.comment) }}
                         {{ wtf.form_field(form.submit, class="btn btn-primary") }}
                     </form>
