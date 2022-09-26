@@ -1,12 +1,14 @@
 from flask import render_template, flash, redirect, url_for, request
 from app import app, query_db
+from app.__init__ import User, db
 from app.forms import IndexForm, PostForm, FriendsForm, ProfileForm, CommentsForm
+from flask_login import login_user, login_required, logout_user
 from datetime import datetime
 import os
 
 # this file contains all the different routes, and the logic for communicating with the database
-
 # home page/login/registration
+   
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/index', methods=['GET', 'POST'])
 def index():
@@ -17,6 +19,8 @@ def index():
         if user == None:
             flash('Sorry, this user does not exist!')
         elif user['password'] == form.login.password.data:
+            user2 = User.query.filter_by(username=form.login.username.data).first()
+            login_user(user2)
             return redirect(url_for('stream', username=form.login.username.data))
         else:
             flash('Sorry, wrong password!')
@@ -24,12 +28,15 @@ def index():
     elif form.register.is_submitted() and form.register.submit.data:
         query_db('INSERT INTO Users (username, first_name, last_name, password) VALUES("{}", "{}", "{}", "{}");'.format(form.register.username.data, form.register.first_name.data,
          form.register.last_name.data, form.register.password.data))
+        db.session.add(User(username=form.register.username.data))
+        db.session.commit()
         return redirect(url_for('index'))
     return render_template('index.html', title='Welcome', form=form)
 
 
 # content stream page
 @app.route('/stream/<username>', methods=['GET', 'POST'])
+@login_required
 def stream(username):
     form = PostForm()
     user = query_db('SELECT * FROM Users WHERE username="{}";'.format(username), one=True)
@@ -47,6 +54,7 @@ def stream(username):
 
 # comment page for a given post and user.
 @app.route('/comments/<username>/<int:p_id>', methods=['GET', 'POST'])
+@login_required
 def comments(username, p_id):
     form = CommentsForm()
     if form.is_submitted():
@@ -59,6 +67,7 @@ def comments(username, p_id):
 
 # page for seeing and adding friends
 @app.route('/friends/<username>', methods=['GET', 'POST'])
+@login_required
 def friends(username):
     form = FriendsForm()
     user = query_db('SELECT * FROM Users WHERE username="{}";'.format(username), one=True)
@@ -74,6 +83,7 @@ def friends(username):
 
 # see and edit detailed profile information of a user
 @app.route('/profile/<username>', methods=['GET', 'POST'])
+@login_required
 def profile(username):
     form = ProfileForm()
     if form.is_submitted():
@@ -84,3 +94,10 @@ def profile(username):
     
     user = query_db('SELECT * FROM Users WHERE username="{}";'.format(username), one=True)
     return render_template('profile.html', title='profile', username=username, user=user, form=form)
+
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('index'))
