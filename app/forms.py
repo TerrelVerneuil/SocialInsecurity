@@ -35,8 +35,8 @@ class CommentsForm(FlaskForm):
     submit = SubmitField('Comment')
 
 class FriendsForm(FlaskForm):
-    comment = TextAreaField('New Comment', validators=[Regexp('[a-zA-Z0-9_.,!?-]$'), Length(min=1, max=200)], render_kw={'placeholder': 'What do you have to say?'})
-    submit = SubmitField('Comment')
+    username = StringField('Friend\'s username', validators=[DataRequired(), Length(min=3, max=32)], render_kw={'placeholder': 'Username'})
+    submit = SubmitField('Add Friend')
 
 class ProfileForm(FlaskForm):
     education = StringField('Education', render_kw={'placeholder': 'Highest education'})
