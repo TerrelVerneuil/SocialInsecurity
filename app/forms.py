@@ -26,12 +26,12 @@ class IndexForm(FlaskForm):
     register = FormField(RegisterForm)
 
 class PostForm(FlaskForm):
-    content = TextAreaField('New Post', validators=[Regexp('[a-zA-Z0-9_.,!?-]$'), Length(min=1, max=200)], render_kw={'placeholder': 'What are you thinking about?'})
+    content = TextAreaField('New Post', validators=[DataRequired, Length(min=1, max=200)], render_kw={'placeholder': 'What are you thinking about?'})
     image = FileField('Image')
     submit = SubmitField('Post')
     
 class CommentsForm(FlaskForm):
-    comment = TextAreaField('New Comment', validators=[Regexp('[a-zA-Z0-9_.,!?-]$'), Length(min=1, max=200)], render_kw={'placeholder': 'What do you have to say?'})
+    comment = TextAreaField('New Comment', validators=[DataRequired, Length(min=1, max=200)], render_kw={'placeholder': 'What do you have to say?'})
     submit = SubmitField('Comment')
 
 class FriendsForm(FlaskForm):
