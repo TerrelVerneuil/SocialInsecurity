@@ -31,7 +31,7 @@ class PostForm(FlaskForm):
     submit = SubmitField('Post')
     
 class CommentsForm(FlaskForm):
-    comment = TextAreaField('New Comment', validators=[DataRequired(), Length(min=1, max=200)], render_kw={'placeholder': 'What do you have to say?'})
+    comment = TextAreaField('New Comment', validators=[InputRequired(), Length(min=1, max=200)], render_kw={'placeholder': 'What do you have to say?'})
     submit = SubmitField('Comment')
 
 class FriendsForm(FlaskForm):
