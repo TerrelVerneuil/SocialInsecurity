@@ -22,8 +22,15 @@ login.login_view = 'index'
 
 class User(db.Model,UserMixin):
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(30))
-
+    username = db.Column(db.String(30), unique = true)
+    password = db.Column(db.String(30)), nullable=false)
+    
+    def set_password(self, password):
+        self.password - generate_password_hash(password)
+        
+    def check_password(self, password):
+        return check_password_hash(self.password, password)
+        
 db.create_all()
 
 @login.user_loader
