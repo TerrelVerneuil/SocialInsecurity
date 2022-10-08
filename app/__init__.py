@@ -5,6 +5,7 @@ from flask_login import LoginManager, UserMixin
 import sqlite3
 from flask_sqlalchemy import SQLAlchemy
 import os
+from flask_bcrypt import Bcrypt
 
 # create and configure app
 app = Flask(__name__)
@@ -15,6 +16,8 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///../database.db'
 
 db = SQLAlchemy(app)
 
+bcrypt = Bcrypt(app)
+
 
 # TODO: Handle login management better, maybe with flask_login?
 login = LoginManager(app)
@@ -23,8 +26,6 @@ login.login_view = 'index'
 class User(db.Model,UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(30))
-
-db.create_all()
 
 @login.user_loader
 def load_user(user_id):
@@ -71,6 +72,6 @@ if not os.path.exists(app.config['DATABASE']):
 if not os.path.exists(app.config['UPLOAD_PATH']):
     os.mkdir(app.config['UPLOAD_PATH'])
 
-
+db.create_all()
 
 from app import routes
