@@ -21,6 +21,7 @@ def index():
         if user == None:
             flash('Sorry, this user does not exist!')
         elif user['password'] == form.login.password.data:
+            login_user(user)
             return redirect(url_for('stream', username=form.login.username.data))
         else:
             flash('Sorry, wrong password!')
@@ -36,7 +37,7 @@ def index():
         query_db('INSERT INTO Users (username, first_name, last_name, password) VALUES("{}", "{}", "{}", "{}");'.format(form.register.username.data, form.register.first_name.data,
             form.register.last_name.data, form.register.password.data))
         db.session.add(User(username=form.register.username.data))
-       # db.session.commit()
+        db.session.commit()
         return redirect(url_for('index'))
     return render_template('index.html', title='Welcome', form=form)
 
@@ -46,7 +47,7 @@ def index():
 def allowed_file(filename):
     return '.' in filename and \
             filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
+@login_required
 @app.route('/stream/<username>', methods=['GET', 'POST'])
 def stream(username):
     form = PostForm()
@@ -73,6 +74,7 @@ def stream(username):
     return render_template('stream.html', title='Stream', username=username, form=form, posts=posts)
 
 # comment page for a given post and user.
+@login_required
 @app.route('/comments/<username>/<int:p_id>', methods=['GET', 'POST'])
 def comments(username, p_id):
     form = CommentsForm()
@@ -85,6 +87,7 @@ def comments(username, p_id):
     return render_template('comments.html', title='Comments', username=username, form=form, post=post, comments=all_comments)
 
 # page for seeing and adding friends
+@login_required
 @app.route('/friends/<username>', methods=['GET', 'POST'])
 def friends(username):
     form = FriendsForm()
@@ -100,6 +103,7 @@ def friends(username):
     return render_template('friends.html', title='Friends', username=username, friends=all_friends, form=form)
 
 # see and edit detailed profile information of a user
+@login_required
 @app.route('/profile/<username>', methods=['GET', 'POST'])
 def profile(username):
     form = ProfileForm()
