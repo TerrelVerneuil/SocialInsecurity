@@ -35,7 +35,7 @@ def index():
         query_db('INSERT INTO Users (username, first_name, last_name, password) VALUES("{}", "{}", "{}", "{}");'.format(form.register.username.data, form.register.first_name.data,
          form.register.last_name.data, form.register.password.data))
         db.session.add(User(username=form.register.username.data))
-        db.session.commit()
+        #db.session.commit()
         return redirect(url_for('index'))
     return render_template('index.html', title='Welcome', form=form)
 
