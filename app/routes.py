@@ -16,7 +16,7 @@ ALLOWED_EXTENSIONS = set(['mp4','txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
 def index():
     form = IndexForm()
 
-    if form.validate_on_submit() and form.login.submit.data:
+    if form.is_submitted() and form.login.submit.data:
         user = query_db('SELECT * FROM Users WHERE username="{}";'.format(form.login.username.data), one=True)
         if user == None:
             flash('Sorry, this user does not exist!')
@@ -25,7 +25,7 @@ def index():
         else:
             flash('Sorry, wrong password!')
 
-    elif form.validate_on_submit() and form.register.submit.data:
+    elif form.is_submitted() and form.register.submit.data:
         user = User.query.filter_by(username=form.register.username.data).first()
         if user == None:
             flash('Registered.')
