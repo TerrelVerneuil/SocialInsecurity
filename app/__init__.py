@@ -17,6 +17,8 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///../database.db'
 db = SQLAlchemy(app)
 
 bcrypt = Bcrypt(app)
+login = LoginManager(app)
+login.login_view = 'index'
 # TODO: Handle login management better, maybe with flask_login?
 #login = LoginManager(app)
 class User(UserMixin, db.Model):
