@@ -5,15 +5,24 @@ from flask_login import LoginManager, UserMixin
 import sqlite3
 from flask_sqlalchemy import SQLAlchemy
 import os
-
+from flask_migrate import Migrate
+from flask_login import(
+        LoginManager,
+        UserMixin,
+        current_user,
+        logout_user,
+        login_required,
+        login_user
+        )
 # create and configure app
 app = Flask(__name__)
 Bootstrap(app)
 app.config.from_object(Config)
+db = SQLAlchemy(app)
+migrate = Migrate(app, db)
+login = LoginManager(app)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///../database.db'
-
-db = SQLAlchemy(app)
 
 
 # TODO: Handle login management better, maybe with flask_login?
