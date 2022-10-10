@@ -26,29 +26,21 @@ def index():
             return redirect(url_for('stream', username=form.login.username.data))
 
 
-    elif form.is_submitted() and form.register.submit.data:
-         hashedpw= bcrypt.generate_password_hash(form.register.username.data).decode('utf-8')
-        user = User.query.filter_by(username=form.register.username.data).first() 
-        
-        if user == None:
-            flash('Registered.')
-        else:
-            flash('Username in Use.')
-        
-    
+    elif form.register.is_submitted() and form.register.submit.data:
+        hashedpw= bcrypt.generate_password_hash(form.register.username.data).decode('utf-8')
         query_db('INSERT INTO Users (username, first_name, last_name, password) VALUES("{}", "{}", "{}", "{}");'.format(form.register.username.data, form.register.first_name.data,
-            form.register.last_name.data, hashedpw))
+         form.register.last_name.data, hashedpw))
         db.session.add(User(username=form.register.username.data))
         db.session.commit()
         return redirect(url_for('index'))
     return render_template('index.html', title='Welcome', form=form)
-
 
                                             
 # content stream page
 def allowed_file(filename):
     return '.' in filename and \
             filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
 @app.route('/stream/<username>', methods=['GET', 'POST'])
 @login_required
 def stream(username):
