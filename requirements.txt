@@ -16,3 +16,4 @@ werkzeug==0.15.6
 wincertstore==0.2
 wtforms==2.3.0
 Django==4.1.2
+flask-migrate-3.1.0
