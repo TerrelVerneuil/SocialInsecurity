@@ -1,32 +1,22 @@
 from flask import Flask, g
 from config import Config
 from flask_bootstrap import Bootstrap
-#from flask_login import LoginManager
+from flask_login import LoginManager, UserMixin
 import sqlite3
-import os
-from flask import Blueprint
 from flask_sqlalchemy import SQLAlchemy
-from werkzeug.security import generate_password_hash, check_password_hash
-from flask_migrate import Migrate
-from flask_login import(
-        LoginManager,
-        UserMixin,
-        current_user,
-        logout_user,
-        login_required,
-        login_user
-        )
-auth = Blueprint('auth', __name__, template_folder='templates')
+import os
+from flask_bcrypt import Bcrypt
 
 # create and configure app
 app = Flask(__name__)
 Bootstrap(app)
 app.config.from_object(Config)
-db = SQLAlchemy(app)
-migrate = Migrate(app, db)
-login = LoginManager(app)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///../database.db'
+
+db = SQLAlchemy(app)
+
+bcrypt = Bcrypt(app)
 # TODO: Handle login management better, maybe with flask_login?
 #login = LoginManager(app)
 class User(UserMixin, db.Model):
