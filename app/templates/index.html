@@ -18,8 +18,8 @@
                     <h5 class="card-title">Access an existing profile</h5>
                     <input type = "hidden">
                     <form action="" id="form-1" method="POST" novalidate>
-                       
-                         {{ form.hidden_tag() }}
+
+                        {{ form.hidden_tag() }}
                         {{ wtf.form_field(form.login.username) }}
                         {{ wtf.form_field(form.login.password) }}
                         {{ wtf.form_field(form.login.remember_me) }}
@@ -37,7 +37,7 @@
                 <div class="card-body">
                     <h5 class="card-title">Create a new profile</h5>
                    <form class="", id= "form-1"  method="POST" novalidate>
-                        
+                        {{ form.csrf_token }}
                         {{ form.hidden_tag() }}
                         {{ wtf.form_field(form.register.first_name) }}
                         {{ wtf.form_field(form.register.last_name) }}
