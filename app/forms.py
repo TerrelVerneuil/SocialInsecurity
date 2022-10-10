@@ -22,10 +22,6 @@ class RegisterForm(FlaskForm):
     confirm_password = PasswordField('Confirm Password', render_kw={'placeholder': 'Confirm Password'}, validators=[DataRequired(), EqualTo('password', message='passwords must match')])
     submit = SubmitField('Sign Up')
 
-    def validate_username(self, username):
-        user = User.query.filter_by(username=username.data).first()
-        if user is not None:
-            raise ValidationError('Username already in use.')
 
 class IndexForm(FlaskForm):
     login = FormField(LoginForm)
