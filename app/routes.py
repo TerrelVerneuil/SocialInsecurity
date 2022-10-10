@@ -15,7 +15,7 @@ ALLOWED_EXTENSIONS = set(['mp4','txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
 @app.route('/index', methods=['GET', 'POST'])
 def index():
     form = IndexForm()
-
+     
     if form.is_submitted() and form.login.submit.data:
         user = query_db('SELECT * FROM Users WHERE username="{}";'.format(form.login.username.data), one=True)
         if user == None:
@@ -26,13 +26,13 @@ def index():
             flash('Sorry, wrong password!')
 
     elif form.is_submitted() and form.register.submit.data:
-        user = User.query.filter_by(username=form.register.username.data).first()
+        user = User.query.filter_by(username=form.register.username.data).first() 
         if user == None:
             flash('Registered.')
         else:
             flash('Username in Use.')
-
-
+        
+    
         query_db('INSERT INTO Users (username, first_name, last_name, password) VALUES("{}", "{}", "{}", "{}");'.format(form.register.username.data, form.register.first_name.data,
             form.register.last_name.data, form.register.password.data))
         db.session.add(User(username=form.register.username.data))
@@ -41,6 +41,8 @@ def index():
     return render_template('index.html', title='Welcome', form=form)
 
 
+                                            
+# content stream page
 def allowed_file(filename):
     return '.' in filename and \
             filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -48,7 +50,7 @@ def allowed_file(filename):
 @app.route('/stream/<username>', methods=['GET', 'POST'])
 def stream(username):
     form = PostForm()
-    user = query_db('SELECT * FROM Users WHERE username="{}";'.format(username), one=True)
+    user = query_db('SELECT * FROM Users WHERE username="{}";'.format(username), one=True) 
     if form.is_submitted() and request.method == 'POST':
         file = request.files['file']
         if form.content.data:
@@ -57,11 +59,11 @@ def stream(username):
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config['UPLOAD_PATH'], filename))
-            flash('File Successfully Uploaded')
+            flash('File Successfully Uploaded')    
         else:
             flash('Not a Compatible Format')
             return redirect(request.url)
-
+            
 
 
         query_db('INSERT INTO Posts (u_id, content, image, creation_time) VALUES({}, "{}", "{}", \'{}\');'.format(user['id'], form.content.data, file.filename, datetime.now()))
@@ -82,6 +84,7 @@ def comments(username, p_id):
     all_comments = query_db('SELECT DISTINCT * FROM Comments AS c JOIN Users AS u ON c.u_id=u.id WHERE c.p_id={} ORDER BY c.creation_time DESC;'.format(p_id))
     return render_template('comments.html', title='Comments', username=username, form=form, post=post, comments=all_comments)
 
+# page for seeing and adding friends
 @app.route('/friends/<username>', methods=['GET', 'POST'])
 def friends(username):
     form = FriendsForm()
@@ -92,7 +95,7 @@ def friends(username):
             flash('User does not exist')
         else:
             query_db('INSERT INTO Friends (u_id, f_id) VALUES({}, {});'.format(user['id'], friend['id']))
-
+    
     all_friends = query_db('SELECT * FROM Friends AS f JOIN Users as u ON f.f_id=u.id WHERE f.u_id={} AND f.f_id!={} ;'.format(user['id'], user['id']))
     return render_template('friends.html', title='Friends', username=username, friends=all_friends, form=form)
 
@@ -105,7 +108,7 @@ def profile(username):
             form.education.data, form.employment.data, form.music.data, form.movie.data, form.nationality.data, form.birthday.data, username
         ))
         return redirect(url_for('profile', username=username))
-
+    
     user = query_db('SELECT * FROM Users WHERE username="{}";'.format(username), one=True)
     return render_template('profile.html', title='profile', username=username, user=user, form=form)
 
