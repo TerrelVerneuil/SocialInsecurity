@@ -26,6 +26,9 @@ def index():
             flash('Sorry, wrong password!')
 
     elif form.register.is_submitted() and form.register.submit.data:
+        user = query_db('SELECT * FROM Users WHERE username="{}";'.format(form.login.username.data), one=True)
+        if user is not None:
+            flash('This Username is already in use')
         query_db('INSERT INTO Users (username, first_name, last_name, password) VALUES("{}", "{}", "{}", "{}");'.format(form.register.username.data, form.register.first_name.data,
          form.register.last_name.data, form.register.password.data))
         db.session.add(User(username=form.register.username.data))
