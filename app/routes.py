@@ -16,15 +16,12 @@ def index():
 
     if form.login.is_submitted() and form.login.submit.data:
         user = query_db('SELECT * FROM Users WHERE username="{}";'.format(form.login.username.data), one=True)
-        if user == None:
-            flash('Sorry, this user does not exist!')
-        elif bcrypt.check_password_hash(user['password'], form.login.password.data):
-        #elif user['password'] == form.login.password.data:
+        if user == None or not bcrypt.check_password_hash(user['password'], form.login.password.data):
+            flash('Sorry, the combination of user and password is invalid')
+        else:
             user2 = User.query.filter_by(username=form.login.username.data).first()
             login_user(user2)
             return redirect(url_for('stream', username=form.login.username.data))
-        else:
-            flash('Sorry, wrong password!')
 
     elif form.register.is_submitted() and form.register.submit.data:
         hashedpw= bcrypt.generate_password_hash(form.register.username.data).decode('utf-8')
