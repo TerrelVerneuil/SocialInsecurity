@@ -22,7 +22,7 @@ login.login_view = 'index'
 
 class User(db.Model,UserMixin):
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(30), unique = True)
+    username = db.Column(db.String(30))
         
 db.create_all()
 
