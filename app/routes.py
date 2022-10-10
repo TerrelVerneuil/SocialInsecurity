@@ -52,9 +52,9 @@ def stream(username):
 
     if form.is_submitted() and request.method == 'POST':
 
-        if 'file' not in request.files:
-            flash('not compatible')
-            return redirect(request.url)
+        if form.content.data:
+            query_db('INSERT INTO Posts (u_id, content, image, creation_time) VALUES({}, "{}", "{}", \'{}\');'.format(user['id'], form.content.data, file.filename, datetime.now()))
+            return redirect(url_for('stream',username=username))
         file = request.files['file']
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
