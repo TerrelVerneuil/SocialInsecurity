@@ -27,8 +27,11 @@ def index():
 
     elif form.register.is_submitted() and form.register.submit.data:
         user2 = User.query.filter_by(username=form.register.username.data).first()
-        if  user2 is not None:
-            flash('This Username is already in use')
+        user = User.query.filter_by(username=form.register.username.data).first()
+        if user == None:
+            flash('Registered.')
+        else:
+            flash('Username in Use')
         query_db('INSERT INTO Users (username, first_name, last_name, password) VALUES("{}", "{}", "{}", "{}");'.format(form.register.username.data, form.register.first_name.data,
          form.register.last_name.data, form.register.password.data))
         db.session.add(User(username=form.register.username.data))
