@@ -56,7 +56,7 @@ def stream(username):
             flash('File Successfully Uploaded')
 
         else:
-            flash('not compatible format')
+            flash('Not a Compatible Format')
             return redirect(request.url)
 
 
