@@ -26,13 +26,13 @@ def index():
             return redirect(url_for('stream', username=form.login.username.data))
 
 
-    elif form.register.is_submitted() and form.register.submit.data:
-        hashedpw= bcrypt.generate_password_hash(form.register.username.data).decode('utf-8')
-        query_db('INSERT INTO Users (username, first_name, last_name, password) VALUES("{}", "{}", "{}", "{}");'.format(form.register.username.data, form.register.first_name.data,
-         form.register.last_name.data, hashedpw))
-        db.session.add(User(username=form.register.username.data))
-        db.session.commit()
-        return redirect(url_for('index'))
+   elif form.register.is_submitted() and form.register.submit.data:
+       hashedpw= bcrypt.generate_password_hash(form.register.username.data).decode('utf-8')
+       query_db('INSERT INTO Users (username, first_name, last_name, password) VALUES("{}", "{}", "{}", "{}");'.format(form.register.username.data, form.register.first_name.data,
+        form.register.last_name.data, hashedpw))
+       db.session.add(User(username=form.register.username.data))
+       db.session.commit()
+       return redirect(url_for('index'))
     return render_template('index.html', title='Welcome', form=form)
 
                                             
