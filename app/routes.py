@@ -31,7 +31,7 @@ def index():
         if user == None:
             flash('Registered.')
         else:
-            flash('Username in Use')
+            flash('Username in Use.')
         query_db('INSERT INTO Users (username, first_name, last_name, password) VALUES("{}", "{}", "{}", "{}");'.format(form.register.username.data, form.register.first_name.data,
          form.register.last_name.data, form.register.password.data))
         db.session.add(User(username=form.register.username.data))
