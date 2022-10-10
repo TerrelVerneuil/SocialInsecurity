@@ -16,18 +16,20 @@ ALLOWED_EXTENSIONS = set(['mp4','txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
 def index():
     form = IndexForm()
      
-    if form.is_submitted() and form.login.submit.data:
+   if form.login.is_submitted() and form.login.submit.data:
         user = query_db('SELECT * FROM Users WHERE username="{}";'.format(form.login.username.data), one=True)
-        if user == None:
-            flash('Sorry, this user does not exist!')
-        elif user['password'] == form.login.password.data:
-            login_user(user)
-            return redirect(url_for('stream', username=form.login.username.data))
+        if user == None or not bcrypt.check_password_hash(user['password'], form.login.password.data):
+            flash('Sorry, the combination of user and password is invalid')
         else:
-            flash('Sorry, wrong password!')
+            user2 = User.query.filter_by(username=form.login.username.data).first()
+            login_user(user2)
+            return redirect(url_for('stream', username=form.login.username.data))
+
 
     elif form.is_submitted() and form.register.submit.data:
+         hashedpw= bcrypt.generate_password_hash(form.register.username.data).decode('utf-8')
         user = User.query.filter_by(username=form.register.username.data).first() 
+        
         if user == None:
             flash('Registered.')
         else:
@@ -35,7 +37,7 @@ def index():
         
     
         query_db('INSERT INTO Users (username, first_name, last_name, password) VALUES("{}", "{}", "{}", "{}");'.format(form.register.username.data, form.register.first_name.data,
-            form.register.last_name.data, form.register.password.data))
+            form.register.last_name.data, hashedpw))
         db.session.add(User(username=form.register.username.data))
         db.session.commit()
         return redirect(url_for('index'))
@@ -47,8 +49,8 @@ def index():
 def allowed_file(filename):
     return '.' in filename and \
             filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-@login_required
 @app.route('/stream/<username>', methods=['GET', 'POST'])
+@login_required
 def stream(username):
     form = PostForm()
     user = query_db('SELECT * FROM Users WHERE username="{}";'.format(username), one=True) 
@@ -74,8 +76,9 @@ def stream(username):
     return render_template('stream.html', title='Stream', username=username, form=form, posts=posts)
 
 # comment page for a given post and user.
-@login_required
+
 @app.route('/comments/<username>/<int:p_id>', methods=['GET', 'POST'])
+@login_required
 def comments(username, p_id):
     form = CommentsForm()
     if form.is_submitted():
@@ -87,8 +90,8 @@ def comments(username, p_id):
     return render_template('comments.html', title='Comments', username=username, form=form, post=post, comments=all_comments)
 
 # page for seeing and adding friends
-@login_required
 @app.route('/friends/<username>', methods=['GET', 'POST'])
+@login_required
 def friends(username):
     form = FriendsForm()
     user = query_db('SELECT * FROM Users WHERE username="{}";'.format(username), one=True)
@@ -103,8 +106,9 @@ def friends(username):
     return render_template('friends.html', title='Friends', username=username, friends=all_friends, form=form)
 
 # see and edit detailed profile information of a user
-@login_required
+
 @app.route('/profile/<username>', methods=['GET', 'POST'])
+@login_required
 def profile(username):
     form = ProfileForm()
     if form.is_submitted():
