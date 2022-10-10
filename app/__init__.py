@@ -17,21 +17,19 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///../database.db'
 db = SQLAlchemy(app)
 
 bcrypt = Bcrypt(app)
+
+
+# TODO: Handle login management better, maybe with flask_login?
 login = LoginManager(app)
 login.login_view = 'index'
-# TODO: Handle login management better, maybe with flask_login?
-#login = LoginManager(app)
-class User(UserMixin, db.Model):
+
+class User(db.Model,UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(30))
-    
-
-db.create_all()
 
 @login.user_loader
-def load_user(id):
-    return User.query.get(int(id))
-
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
 # get an instance of the db
 def get_db():
@@ -59,7 +57,7 @@ def query_db(query, one=False):
     return (rv[0] if rv else None) if one else rv
 
 # TODO: Add more specific queries to simplify code
-
+#username = query_db('SELECT username FROM Users')
 # automatically called when application is closed, and closes db connection
 @app.teardown_appcontext
 def close_connection(exception):
@@ -73,5 +71,7 @@ if not os.path.exists(app.config['DATABASE']):
 
 if not os.path.exists(app.config['UPLOAD_PATH']):
     os.mkdir(app.config['UPLOAD_PATH'])
+
+db.create_all()
 
 from app import routes
